@@ -1,0 +1,20 @@
+{
+  "pluginName": "cubic-bezier",
+  "description": "desc",
+  "author": "bzl",
+  "version": "0.0.1",
+  "preload": "./src/preload.js",
+  "main": "./html/index.html",
+  "logo": "bezier.png",
+  "features": [
+    {
+      "code": "bezier",
+      "explain": "bezier",
+      "cmds": [
+        "bezier",
+        "cubic-bezier",
+        "cubic"
+      ]
+    }
+  ]
+}
