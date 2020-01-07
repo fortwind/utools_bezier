@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "file": "bundle.css",
+  "sources": [
+    "../../mCanvas.svelte"
+  ],
+  "sourcesContent": [
+    "<div class=\"coordinate-plane\">\n  <canvas id=\"canvas\" height=\"600\" width=\"300\"></canvas>\n</div>\n\n<style>\n.coordinate-plane {\n  position: absolute;\n  left: 0;\n  color: rgba(0,0,0,.6);\n  text-transform: uppercase;\n  font-size: 75%;\n}\n.coordinate-plane::before, .coordinate-plane::after {\n  position: absolute;\n  width: 100%;\n  left: 0;\n  bottom: 25%;\n  padding: 5px;\n  box-sizing: border-box;\n  line-height: 1;\n}\n.coordinate-plane::before {\n  border-bottom: 1px solid #b9b8b8;\n  content: 'Progression';\n  transform-origin: bottom left;\n  transform: rotate(-90deg);\n}\n.coordinate-plane::after{\n  content: 'Time';\n  border-top: 1px solid #b9b8b8;\n}\n#canvas {\n  background: linear-gradient(-45deg, transparent 49%, rgba(0,0,0,.1) 49%, rgba(0,0,0,.1) 51%, transparent 51%) center no-repeat,\n\t\trepeating-linear-gradient(white, white 20px, transparent 20px, transparent 40px) no-repeat,\n\t\tlinear-gradient(transparent, rgba(0,0,0,.06) 25%, rgba(0,0,0,.06) 75%, transparent);\n}\n</style>"
+  ],
+  "names": [],
+  "mappings": "AAKA,iBAAiB,eAAC,CAAC,AACjB,QAAQ,CAAE,QAAQ,CAClB,IAAI,CAAE,CAAC,CACP,KAAK,CAAE,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,EAAE,CAAC,CACrB,cAAc,CAAE,SAAS,CACzB,SAAS,CAAE,GAAG,AAChB,CAAC,AACD,gCAAiB,QAAQ,CAAE,gCAAiB,OAAO,AAAC,CAAC,AACnD,QAAQ,CAAE,QAAQ,CAClB,KAAK,CAAE,IAAI,CACX,IAAI,CAAE,CAAC,CACP,MAAM,CAAE,GAAG,CACX,OAAO,CAAE,GAAG,CACZ,UAAU,CAAE,UAAU,CACtB,WAAW,CAAE,CAAC,AAChB,CAAC,AACD,gCAAiB,QAAQ,AAAC,CAAC,AACzB,aAAa,CAAE,GAAG,CAAC,KAAK,CAAC,OAAO,CAChC,OAAO,CAAE,aAAa,CACtB,gBAAgB,CAAE,MAAM,CAAC,IAAI,CAC7B,SAAS,CAAE,OAAO,MAAM,CAAC,AAC3B,CAAC,AACD,gCAAiB,OAAO,CAAC,AACvB,OAAO,CAAE,MAAM,CACf,UAAU,CAAE,GAAG,CAAC,KAAK,CAAC,OAAO,AAC/B,CAAC,AACD,OAAO,eAAC,CAAC,AACP,UAAU,CAAE,gBAAgB,MAAM,CAAC,CAAC,WAAW,CAAC,GAAG,CAAC,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,EAAE,CAAC,CAAC,GAAG,CAAC,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,EAAE,CAAC,CAAC,GAAG,CAAC,CAAC,WAAW,CAAC,GAAG,CAAC,CAAC,MAAM,CAAC,SAAS,CAAC;EAC/H,0BAA0B,KAAK,CAAC,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC,WAAW,CAAC,IAAI,CAAC,CAAC,WAAW,CAAC,IAAI,CAAC,CAAC,SAAS,CAAC;EAC3F,gBAAgB,WAAW,CAAC,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,CAAC,GAAG,CAAC,CAAC,WAAW,CAAC,AACrF,CAAC"
+}

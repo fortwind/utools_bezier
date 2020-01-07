@@ -3,8 +3,8 @@
   "description": "desc",
   "author": "bzl",
   "version": "0.0.1",
-  "preload": "./preload.js",
-  "main": "./index.html",
+  "preload": "preload.js",
+  "main": "index.html",
   "logo": "bezier.png",
   "features": [
     {
