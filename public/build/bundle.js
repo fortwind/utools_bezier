@@ -327,9 +327,9 @@ var app = (function () {
     	let t2;
     	let button1;
     	let t3;
-    	let canvas;
-    	let canvas_height_value;
-    	let canvas_width_value;
+    	let canvas_1;
+    	let canvas_1_height_value;
+    	let canvas_1_width_value;
     	let div_data_progression_value;
     	let div_data_time_value;
     	let dispose;
@@ -345,33 +345,33 @@ var app = (function () {
     			t2 = space();
     			button1 = element("button");
     			t3 = space();
-    			canvas = element("canvas");
-    			attr_dev(span0, "class", "dot top svelte-jst3yc");
-    			add_location(span0, file, 47, 2, 1116);
-    			attr_dev(span1, "class", "dot bottom svelte-jst3yc");
-    			add_location(span1, file, 48, 2, 1148);
-    			attr_dev(button0, "class", "ctrltop ctrlbtn svelte-jst3yc");
-    			set_style(button0, "top", /*ctrltop*/ ctx[1].top + "px");
-    			set_style(button0, "left", /*ctrltop*/ ctx[1].left + "px");
-    			add_location(button0, file, 49, 2, 1183);
-    			attr_dev(button1, "class", "ctrlbottom ctrlbtn svelte-jst3yc");
-    			set_style(button1, "top", /*ctrlbottom*/ ctx[2].top + "px");
-    			set_style(button1, "left", /*ctrlbottom*/ ctx[2].left + "px");
-    			add_location(button1, file, 50, 2, 1350);
-    			attr_dev(canvas, "id", "canvas");
-    			attr_dev(canvas, "height", canvas_height_value = /*canvasSize*/ ctx[3].h);
-    			attr_dev(canvas, "width", canvas_width_value = /*canvasSize*/ ctx[3].w);
-    			attr_dev(canvas, "class", "svelte-jst3yc");
-    			add_location(canvas, file, 51, 2, 1535);
-    			attr_dev(div, "class", "coordinate-plane svelte-jst3yc");
-    			attr_dev(div, "data-progression", div_data_progression_value = /*cvsdata*/ ctx[0].p);
-    			attr_dev(div, "data-time", div_data_time_value = /*cvsdata*/ ctx[0].t);
-    			add_location(div, file, 46, 0, 1005);
+    			canvas_1 = element("canvas");
+    			attr_dev(span0, "class", "dot top svelte-1atvsst");
+    			add_location(span0, file, 54, 2, 1333);
+    			attr_dev(span1, "class", "dot bottom svelte-1atvsst");
+    			add_location(span1, file, 55, 2, 1365);
+    			attr_dev(button0, "class", "ctrltop ctrlbtn svelte-1atvsst");
+    			set_style(button0, "top", /*ctrltop*/ ctx[2].top + "px");
+    			set_style(button0, "left", /*ctrltop*/ ctx[2].left + "px");
+    			add_location(button0, file, 56, 2, 1400);
+    			attr_dev(button1, "class", "ctrlbottom ctrlbtn svelte-1atvsst");
+    			set_style(button1, "top", /*ctrlbottom*/ ctx[3].top + "px");
+    			set_style(button1, "left", /*ctrlbottom*/ ctx[3].left + "px");
+    			add_location(button1, file, 57, 2, 1542);
+    			attr_dev(canvas_1, "id", "canvas");
+    			attr_dev(canvas_1, "height", canvas_1_height_value = /*canvasSize*/ ctx[4].h);
+    			attr_dev(canvas_1, "width", canvas_1_width_value = /*canvasSize*/ ctx[4].w);
+    			attr_dev(canvas_1, "class", "svelte-1atvsst");
+    			add_location(canvas_1, file, 58, 2, 1699);
+    			attr_dev(div, "class", "coordinate-plane svelte-1atvsst");
+    			attr_dev(div, "data-progression", div_data_progression_value = /*cvsdata*/ ctx[1].p);
+    			attr_dev(div, "data-time", div_data_time_value = /*cvsdata*/ ctx[1].t);
+    			add_location(div, file, 53, 0, 1222);
 
     			dispose = [
     				listen_dev(button0, "mousedown", /*mousedown_handler*/ ctx[7], false, false, false),
-    				listen_dev(button1, "mousedown", /*mousedown_handler_1*/ ctx[9], false, false, false),
-    				listen_dev(div, "mousemove", /*mouseMove*/ ctx[4], false, false, false)
+    				listen_dev(button1, "mousedown", /*mousedown_handler_1*/ ctx[8], false, false, false),
+    				listen_dev(div, "mousemove", /*mouseMove*/ ctx[5], false, false, false)
     			];
     		},
     		l: function claim(nodes) {
@@ -384,35 +384,34 @@ var app = (function () {
     			append_dev(div, span1);
     			append_dev(div, t1);
     			append_dev(div, button0);
-    			/*button0_binding*/ ctx[6](button0);
     			append_dev(div, t2);
     			append_dev(div, button1);
-    			/*button1_binding*/ ctx[8](button1);
     			append_dev(div, t3);
-    			append_dev(div, canvas);
+    			append_dev(div, canvas_1);
+    			/*canvas_1_binding*/ ctx[9](canvas_1);
     		},
     		p: function update(ctx, [dirty]) {
-    			if (dirty & /*ctrltop*/ 2) {
-    				set_style(button0, "top", /*ctrltop*/ ctx[1].top + "px");
+    			if (dirty & /*ctrltop*/ 4) {
+    				set_style(button0, "top", /*ctrltop*/ ctx[2].top + "px");
     			}
 
-    			if (dirty & /*ctrltop*/ 2) {
-    				set_style(button0, "left", /*ctrltop*/ ctx[1].left + "px");
+    			if (dirty & /*ctrltop*/ 4) {
+    				set_style(button0, "left", /*ctrltop*/ ctx[2].left + "px");
     			}
 
-    			if (dirty & /*ctrlbottom*/ 4) {
-    				set_style(button1, "top", /*ctrlbottom*/ ctx[2].top + "px");
+    			if (dirty & /*ctrlbottom*/ 8) {
+    				set_style(button1, "top", /*ctrlbottom*/ ctx[3].top + "px");
     			}
 
-    			if (dirty & /*ctrlbottom*/ 4) {
-    				set_style(button1, "left", /*ctrlbottom*/ ctx[2].left + "px");
+    			if (dirty & /*ctrlbottom*/ 8) {
+    				set_style(button1, "left", /*ctrlbottom*/ ctx[3].left + "px");
     			}
 
-    			if (dirty & /*cvsdata*/ 1 && div_data_progression_value !== (div_data_progression_value = /*cvsdata*/ ctx[0].p)) {
+    			if (dirty & /*cvsdata*/ 2 && div_data_progression_value !== (div_data_progression_value = /*cvsdata*/ ctx[1].p)) {
     				attr_dev(div, "data-progression", div_data_progression_value);
     			}
 
-    			if (dirty & /*cvsdata*/ 1 && div_data_time_value !== (div_data_time_value = /*cvsdata*/ ctx[0].t)) {
+    			if (dirty & /*cvsdata*/ 2 && div_data_time_value !== (div_data_time_value = /*cvsdata*/ ctx[1].t)) {
     				attr_dev(div, "data-time", div_data_time_value);
     			}
     		},
@@ -420,8 +419,7 @@ var app = (function () {
     		o: noop,
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
-    			/*button0_binding*/ ctx[6](null);
-    			/*button1_binding*/ ctx[8](null);
+    			/*canvas_1_binding*/ ctx[9](null);
     			run_all(dispose);
     		}
     	};
@@ -438,11 +436,11 @@ var app = (function () {
     }
 
     function instance($$self, $$props, $$invalidate) {
+    	let canvas;
     	const canvasSize = { w: 300, h: 600 };
     	const cvsdata = { p: 0, t: 0 };
 
     	const ctrltop = {
-    		self: undefined,
     		top: 0,
     		left: 0,
     		move() {
@@ -451,7 +449,6 @@ var app = (function () {
     	};
 
     	const ctrlbottom = {
-    		self: undefined,
     		top: 0,
     		left: 0,
     		move() {
@@ -460,16 +457,27 @@ var app = (function () {
     	};
 
     	function ctrlmove(flag) {
-    		const { top, left } = document.querySelector(".coordinate-plane").getBoundingClientRect();
+    		const { top, left, height, width } = document.querySelector(".coordinate-plane").getBoundingClientRect();
+    		const ctx = canvas.getContext("2d");
+    		ctx.strokeStyle = "#000000";
+    		ctx.lineWidth = 10;
 
     		document.onmousemove = ({ clientX, clientY }) => {
+    			const ty = clientY - top;
+    			const y = ty < 0 ? 0 : ty > height ? height : ty;
+    			const tx = clientX - left;
+    			const x = tx < 0 ? 0 : tx > width ? width : tx;
+
     			if (flag) {
-    				$$invalidate(2, ctrlbottom.top = clientY - top, ctrlbottom);
-    				$$invalidate(2, ctrlbottom.left = clientX - left, ctrlbottom);
+    				$$invalidate(3, ctrlbottom.top = y, ctrlbottom);
+    				$$invalidate(3, ctrlbottom.left = x, ctrlbottom);
     			} else {
-    				$$invalidate(1, ctrltop.top = clientY - top, ctrltop);
-    				$$invalidate(1, ctrltop.left = clientX - left, ctrltop);
+    				$$invalidate(2, ctrltop.top = y, ctrltop);
+    				$$invalidate(2, ctrltop.left = x, ctrltop);
     			}
+
+    			ctx.beginPath();
+    			ctx.bezierCurveTo(100, 200, 300, 400, 500, 600);
     		};
 
     		document.onmouseup = () => {
@@ -479,47 +487,38 @@ var app = (function () {
     	}
 
     	const mouseMove = ({ layerX, layerY }) => {
-    		$$invalidate(0, cvsdata.p = Math.round((canvasSize.h * 0.75 - layerY) / canvasSize.w * 100), cvsdata);
-    		$$invalidate(0, cvsdata.t = Math.round(layerX / canvasSize.w * 100), cvsdata);
+    		$$invalidate(1, cvsdata.p = Math.round((canvasSize.h * 0.75 - layerY) / canvasSize.w * 100), cvsdata);
+    		$$invalidate(1, cvsdata.t = Math.round(layerX / canvasSize.w * 100), cvsdata);
     	};
 
-    	function button0_binding($$value) {
-    		binding_callbacks[$$value ? "unshift" : "push"](() => {
-    			ctrltop.self = $$value;
-    			$$invalidate(1, ctrltop);
-    		});
-    	}
-
     	const mousedown_handler = () => ctrltop.move.call(ctrltop);
+    	const mousedown_handler_1 = () => ctrlbottom.move.call(ctrlbottom);
 
-    	function button1_binding($$value) {
+    	function canvas_1_binding($$value) {
     		binding_callbacks[$$value ? "unshift" : "push"](() => {
-    			ctrlbottom.self = $$value;
-    			$$invalidate(2, ctrlbottom);
+    			$$invalidate(0, canvas = $$value);
     		});
     	}
-
-    	const mousedown_handler_1 = () => ctrlbottom.move.call(ctrlbottom);
 
     	$$self.$capture_state = () => {
     		return {};
     	};
 
     	$$self.$inject_state = $$props => {
-    		
+    		if ("canvas" in $$props) $$invalidate(0, canvas = $$props.canvas);
     	};
 
     	return [
+    		canvas,
     		cvsdata,
     		ctrltop,
     		ctrlbottom,
     		canvasSize,
     		mouseMove,
     		ctrlmove,
-    		button0_binding,
     		mousedown_handler,
-    		button1_binding,
-    		mousedown_handler_1
+    		mousedown_handler_1,
+    		canvas_1_binding
     	];
     }
 
