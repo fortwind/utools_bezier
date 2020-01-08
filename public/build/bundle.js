@@ -37,6 +37,16 @@ var app = (function () {
     function element(name) {
         return document.createElement(name);
     }
+    function text(data) {
+        return document.createTextNode(data);
+    }
+    function space() {
+        return text(' ');
+    }
+    function listen(node, event, handler, options) {
+        node.addEventListener(event, handler, options);
+        return () => node.removeEventListener(event, handler, options);
+    }
     function attr(node, attribute, value) {
         if (value == null)
             node.removeAttribute(attribute);
@@ -45,6 +55,9 @@ var app = (function () {
     }
     function children(element) {
         return Array.from(element.childNodes);
+    }
+    function set_style(node, key, value, important) {
+        node.style.setProperty(key, value, important ? 'important' : '');
     }
     function custom_event(type, detail) {
         const e = document.createEvent('CustomEvent');
@@ -265,6 +278,19 @@ var app = (function () {
         dispatch_dev("SvelteDOMRemove", { node });
         detach(node);
     }
+    function listen_dev(node, event, handler, options, has_prevent_default, has_stop_propagation) {
+        const modifiers = options === true ? ["capture"] : options ? Array.from(Object.keys(options)) : [];
+        if (has_prevent_default)
+            modifiers.push('preventDefault');
+        if (has_stop_propagation)
+            modifiers.push('stopPropagation');
+        dispatch_dev("SvelteDOMAddEventListener", { node, event, handler, modifiers });
+        const dispose = listen(node, event, handler, options);
+        return () => {
+            dispatch_dev("SvelteDOMRemoveEventListener", { node, event, handler, modifiers });
+            dispose();
+        };
+    }
     function attr_dev(node, attribute, value) {
         attr(node, attribute, value);
         if (value == null)
@@ -293,32 +319,110 @@ var app = (function () {
 
     function create_fragment(ctx) {
     	let div;
+    	let span0;
+    	let t0;
+    	let span1;
+    	let t1;
+    	let button0;
+    	let t2;
+    	let button1;
+    	let t3;
     	let canvas;
+    	let canvas_height_value;
+    	let canvas_width_value;
+    	let div_data_progression_value;
+    	let div_data_time_value;
+    	let dispose;
 
     	const block = {
     		c: function create() {
     			div = element("div");
+    			span0 = element("span");
+    			t0 = space();
+    			span1 = element("span");
+    			t1 = space();
+    			button0 = element("button");
+    			t2 = space();
+    			button1 = element("button");
+    			t3 = space();
     			canvas = element("canvas");
+    			attr_dev(span0, "class", "dot top svelte-jst3yc");
+    			add_location(span0, file, 47, 2, 1116);
+    			attr_dev(span1, "class", "dot bottom svelte-jst3yc");
+    			add_location(span1, file, 48, 2, 1148);
+    			attr_dev(button0, "class", "ctrltop ctrlbtn svelte-jst3yc");
+    			set_style(button0, "top", /*ctrltop*/ ctx[1].top + "px");
+    			set_style(button0, "left", /*ctrltop*/ ctx[1].left + "px");
+    			add_location(button0, file, 49, 2, 1183);
+    			attr_dev(button1, "class", "ctrlbottom ctrlbtn svelte-jst3yc");
+    			set_style(button1, "top", /*ctrlbottom*/ ctx[2].top + "px");
+    			set_style(button1, "left", /*ctrlbottom*/ ctx[2].left + "px");
+    			add_location(button1, file, 50, 2, 1350);
     			attr_dev(canvas, "id", "canvas");
-    			attr_dev(canvas, "height", "600");
-    			attr_dev(canvas, "width", "300");
-    			attr_dev(canvas, "class", "svelte-1c524po");
-    			add_location(canvas, file, 1, 2, 33);
-    			attr_dev(div, "class", "coordinate-plane svelte-1c524po");
-    			add_location(div, file, 0, 0, 0);
+    			attr_dev(canvas, "height", canvas_height_value = /*canvasSize*/ ctx[3].h);
+    			attr_dev(canvas, "width", canvas_width_value = /*canvasSize*/ ctx[3].w);
+    			attr_dev(canvas, "class", "svelte-jst3yc");
+    			add_location(canvas, file, 51, 2, 1535);
+    			attr_dev(div, "class", "coordinate-plane svelte-jst3yc");
+    			attr_dev(div, "data-progression", div_data_progression_value = /*cvsdata*/ ctx[0].p);
+    			attr_dev(div, "data-time", div_data_time_value = /*cvsdata*/ ctx[0].t);
+    			add_location(div, file, 46, 0, 1005);
+
+    			dispose = [
+    				listen_dev(button0, "mousedown", /*mousedown_handler*/ ctx[7], false, false, false),
+    				listen_dev(button1, "mousedown", /*mousedown_handler_1*/ ctx[9], false, false, false),
+    				listen_dev(div, "mousemove", /*mouseMove*/ ctx[4], false, false, false)
+    			];
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
+    			append_dev(div, span0);
+    			append_dev(div, t0);
+    			append_dev(div, span1);
+    			append_dev(div, t1);
+    			append_dev(div, button0);
+    			/*button0_binding*/ ctx[6](button0);
+    			append_dev(div, t2);
+    			append_dev(div, button1);
+    			/*button1_binding*/ ctx[8](button1);
+    			append_dev(div, t3);
     			append_dev(div, canvas);
     		},
-    		p: noop,
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*ctrltop*/ 2) {
+    				set_style(button0, "top", /*ctrltop*/ ctx[1].top + "px");
+    			}
+
+    			if (dirty & /*ctrltop*/ 2) {
+    				set_style(button0, "left", /*ctrltop*/ ctx[1].left + "px");
+    			}
+
+    			if (dirty & /*ctrlbottom*/ 4) {
+    				set_style(button1, "top", /*ctrlbottom*/ ctx[2].top + "px");
+    			}
+
+    			if (dirty & /*ctrlbottom*/ 4) {
+    				set_style(button1, "left", /*ctrlbottom*/ ctx[2].left + "px");
+    			}
+
+    			if (dirty & /*cvsdata*/ 1 && div_data_progression_value !== (div_data_progression_value = /*cvsdata*/ ctx[0].p)) {
+    				attr_dev(div, "data-progression", div_data_progression_value);
+    			}
+
+    			if (dirty & /*cvsdata*/ 1 && div_data_time_value !== (div_data_time_value = /*cvsdata*/ ctx[0].t)) {
+    				attr_dev(div, "data-time", div_data_time_value);
+    			}
+    		},
     		i: noop,
     		o: noop,
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
+    			/*button0_binding*/ ctx[6](null);
+    			/*button1_binding*/ ctx[8](null);
+    			run_all(dispose);
     		}
     	};
 
@@ -333,10 +437,96 @@ var app = (function () {
     	return block;
     }
 
+    function instance($$self, $$props, $$invalidate) {
+    	const canvasSize = { w: 300, h: 600 };
+    	const cvsdata = { p: 0, t: 0 };
+
+    	const ctrltop = {
+    		self: undefined,
+    		top: 0,
+    		left: 0,
+    		move() {
+    			ctrlmove(0);
+    		}
+    	};
+
+    	const ctrlbottom = {
+    		self: undefined,
+    		top: 0,
+    		left: 0,
+    		move() {
+    			ctrlmove(1);
+    		}
+    	};
+
+    	function ctrlmove(flag) {
+    		const { top, left } = document.querySelector(".coordinate-plane").getBoundingClientRect();
+
+    		document.onmousemove = ({ clientX, clientY }) => {
+    			if (flag) {
+    				$$invalidate(2, ctrlbottom.top = clientY - top, ctrlbottom);
+    				$$invalidate(2, ctrlbottom.left = clientX - left, ctrlbottom);
+    			} else {
+    				$$invalidate(1, ctrltop.top = clientY - top, ctrltop);
+    				$$invalidate(1, ctrltop.left = clientX - left, ctrltop);
+    			}
+    		};
+
+    		document.onmouseup = () => {
+    			document.onmousemove = null;
+    			document.onmouseup = null;
+    		};
+    	}
+
+    	const mouseMove = ({ layerX, layerY }) => {
+    		$$invalidate(0, cvsdata.p = Math.round((canvasSize.h * 0.75 - layerY) / canvasSize.w * 100), cvsdata);
+    		$$invalidate(0, cvsdata.t = Math.round(layerX / canvasSize.w * 100), cvsdata);
+    	};
+
+    	function button0_binding($$value) {
+    		binding_callbacks[$$value ? "unshift" : "push"](() => {
+    			ctrltop.self = $$value;
+    			$$invalidate(1, ctrltop);
+    		});
+    	}
+
+    	const mousedown_handler = () => ctrltop.move.call(ctrltop);
+
+    	function button1_binding($$value) {
+    		binding_callbacks[$$value ? "unshift" : "push"](() => {
+    			ctrlbottom.self = $$value;
+    			$$invalidate(2, ctrlbottom);
+    		});
+    	}
+
+    	const mousedown_handler_1 = () => ctrlbottom.move.call(ctrlbottom);
+
+    	$$self.$capture_state = () => {
+    		return {};
+    	};
+
+    	$$self.$inject_state = $$props => {
+    		
+    	};
+
+    	return [
+    		cvsdata,
+    		ctrltop,
+    		ctrlbottom,
+    		canvasSize,
+    		mouseMove,
+    		ctrlmove,
+    		button0_binding,
+    		mousedown_handler,
+    		button1_binding,
+    		mousedown_handler_1
+    	];
+    }
+
     class MCanvas extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, null, create_fragment, safe_not_equal, {});
+    		init(this, options, instance, create_fragment, safe_not_equal, {});
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
