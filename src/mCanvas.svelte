@@ -1,16 +1,21 @@
 <script>
+import { onMount } from 'svelte'
+import { bezier } from './store.js'
+
 let canvas
+let ctx
+
 const canvasSize = { w: 300, h: 600 }
 const cvsdata = { p: 0, t: 0}
 const ctrltop = {
-  top: 0,
-  left: 0,
+  top: 300,
+  left: 300,
   move: function () {
     ctrlmove(0)
   }
 }
 const ctrlbottom = {
-  top: 0,
+  top: 300,
   left: 0,
   move: function () {
     // console.log(this, e)
@@ -20,9 +25,6 @@ const ctrlbottom = {
 
 function ctrlmove (flag) {
   const { top, left, height, width } = document.querySelector('.coordinate-plane').getBoundingClientRect()
-  const ctx = canvas.getContext('2d')
-  ctx.strokeStyle = '#000000'
-  ctx.lineWidth = 10
   document.onmousemove = ({ clientX, clientY }) => {
     const ty = clientY - top
     const y = ty < 0 ? 0 : ty > height ? height : ty
@@ -35,9 +37,7 @@ function ctrlmove (flag) {
       ctrltop.top = y
       ctrltop.left = x
     }
-
-    ctx.beginPath()
-    ctx.bezierCurveTo(100, 200, 300, 400, 500, 600)
+    ctrlDraw()
   }
   document.onmouseup = () => {
     document.onmousemove = null
@@ -45,10 +45,61 @@ function ctrlmove (flag) {
   }
 }
 
+function ctrlDraw () {
+  draw(ctx, canvasSize.w, canvasSize.h, 0, 450, 300, 150, ctrlbottom.left, ctrlbottom.top, ctrltop.left, ctrltop.top)
+  bezier.update(() => pos2bezier(0, 450, 300, 150, ctrlbottom.left, ctrlbottom.top, ctrltop.left, ctrltop.top))
+}
+
+function draw (ctx, w, h, startx, starty, endx, endy, cbl, cbt, ctl, ctt) {
+  ctx.clearRect(0, 0, w, h)
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)'
+  ctx.lineWidth = 2
+  ctx.beginPath()
+  ctx.moveTo(startx, starty)
+  ctx.lineTo(cbl, cbt)
+  ctx.moveTo(endx, endy)
+  ctx.lineTo(ctl, ctt)
+  ctx.stroke()
+  ctx.closePath()
+  ctx.strokeStyle = 'rgb(0, 0, 0)'
+  ctx.lineWidth = 5
+  ctx.beginPath()
+  ctx.moveTo(startx, starty)
+  ctx.bezierCurveTo(cbl, cbt, ctl, ctt, endx, endy)
+  ctx.stroke()
+  ctx.closePath()
+}
+
+function pos2bezier ( startx, starty, endx, endy, cbl, cbt, ctl, ctt) {
+  const w = endx - startx
+  const h = starty - endy
+  const x1 = Math.round(cbl / w * 100) / 100
+  const y1 = Math.round((starty - cbt) / h * 100) / 100
+  const x2 = Math.round(ctl / w * 100) / 100
+  const y2 = Math.round((starty - ctt) / h * 100) / 100
+  return [x1, y1, x2, y2]
+}
+
 const mouseMove = ({ layerX, layerY }) => {
   cvsdata.p = Math.round((canvasSize.h * 0.75 - layerY) / canvasSize.w * 100)
   cvsdata.t = Math.round(layerX / canvasSize.w * 100)
 }
+
+onMount(() => {
+  ctx = canvas.getContext('2d')
+  if ($bezier) {
+    const [x1, y1, x2, y2] = $bezier
+    const w = 300
+    const h = 300
+    ctrlbottom.left = x1 * w
+    ctrlbottom.top = 450 - y1 * h
+    ctrltop.left = x2 * w
+    ctrltop.top = 450 - y2 * h
+    draw(ctx, canvasSize.w, canvasSize.h, 0, 450, 300, 150, ctrlbottom.left, ctrlbottom.top, ctrltop.left, ctrltop.top)
+  } else {
+    ctrlDraw()
+  }
+})
 </script>
 
 <div class="coordinate-plane" on:mousemove="{mouseMove}" data-progression={cvsdata.p} data-time={cvsdata.t}>
@@ -102,7 +153,7 @@ const mouseMove = ({ layerX, layerY }) => {
   z-index: 3;
 }
 .ctrlbtn:hover {
-  box-shadow: 0 0 5px #cc00ff;
+  box-shadow: 0 0 5px rgb(190, 46, 221);
 }
 .ctrlbtn.ctrltop {
   background-color: #00aabb;
