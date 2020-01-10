@@ -2,10 +2,30 @@
 import { onMount, onDestroy } from 'svelte'
 import { bezier } from './store.js'
 import MCanvas from './mCanvas.svelte'
+import BezierSvg from './beziersvg.svelte'
 
 utools.onPluginOut(() => {
   localStorage.setItem('bezier', $bezier)
 })
+
+const timeDot = {
+  fatherDom: '',
+  left: 26.125, // 初始位置8
+  time: 1,
+  move: function () {
+    const { width, x } = timeDot.fatherDom.getBoundingClientRect()
+    let dist
+    document.onmousemove = ({ clientX }) => {
+      dist = clientX - x - 2
+      timeDot.left = dist < 8 ? 8 : dist > width - 10 ? width - 10 : dist
+      timeDot.time = Math.round((timeDot.left - 7) / (width - 17) * 100) / 10
+    }
+    document.onmouseup = () => {
+      document.onmousemove = null
+      document.onmouseup = null
+    }
+  }
+}
 
 </script>
 
@@ -27,12 +47,21 @@ utools.onPluginOut(() => {
     <div class="body">
       <div class="subtitle">
         <h2>Preview & compare</h2>
-        <button class="button gobtn"><span>GO</span></button>
+        <button class="button gobtn"><span>GO!</span></button>
       </div>
       <div class="timecontrol">
         <span>Duration:</span>
         <div class="slider">
-          <div class="inner-slider"></div>
+          <div bind:this={timeDot.fatherDom} class="inner-slider">
+            <span class="bgfill" style="width:{timeDot.left}px"></span>
+            <span class="inner-dot" style="left:{timeDot.left}px" on:mousedown={timeDot.move}></span>
+          </div>
+        </div>
+        <div class="time">{timeDot.time} s</div>
+      </div>
+      <div class="animate-plane">
+        <div class="bezier">
+          <BezierSvg size={1} />
         </div>
       </div>
     </div>
@@ -45,6 +74,7 @@ utools.onPluginOut(() => {
 	margin: 32px;
 	min-height: 600px;
 	padding-left: 333px;
+  user-select: none;
 }
 
 .button {
@@ -87,10 +117,11 @@ utools.onPluginOut(() => {
 
 .gobtn {
   margin-left: 12px;
-  padding: 6px 14px;
+  padding: 6px 12px;
   font-size: 16px;
   color: #fff;
   background-color: #ccc;
+  border-radius: 6px;
   transition: background-color 0.3s;
 }
 .gobtn:hover {
@@ -98,7 +129,46 @@ utools.onPluginOut(() => {
 }
 
 .timecontrol {
+  display: flex;
+  align-items: center;
   font-size: 18px;
   color: #777777;
+}
+
+.slider {
+  margin: 0 12px;
+}
+
+.slider .inner-slider {
+  position: relative;
+  width: 211px;
+  height: 16px;
+  border: 1px solid #b3b0b0;
+  border-radius: 25px;
+  background-color: #eee;
+  box-shadow: inset 1px 1px #dddddd;
+  overflow: hidden;
+}
+
+.slider .inner-dot {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background-color: rgb(219, 49, 255);
+  border-radius: 100%;
+  box-shadow: inset 0 0 7px 0px #5d5d5db8;
+  cursor: pointer;
+  transform: translate(-50%);
+}
+
+.slider .bgfill {
+  position: absolute;
+  height: 100%;
+  background-color: rgb(239, 203, 247);
+}
+
+.animate-plane .bezier{
+  width: 100px;
+  height: 100px;
 }
 </style>
