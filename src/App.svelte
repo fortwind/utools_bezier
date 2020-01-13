@@ -4,9 +4,27 @@ import { bezier } from './store.js'
 import MCanvas from './mCanvas.svelte'
 import BezierSvg from './beziersvg.svelte'
 
+// utools.onPluginReady(() => {
+//   localStorage.setItem('curves', JSON.stringify({
+//     "ease": ".25,.1,.25,1",
+//     "linear": "0,0,1,1",
+//     "ease-in": ".42,0,1,1",
+//     "ease-out": "0,0,.58,1",
+//     "ease-in-out": ".42,0,.58,1"
+//   }))
+// })
+
 utools.onPluginOut(() => {
   localStorage.setItem('bezier', $bezier)
 })
+
+const curves = {
+  "ease": [.25,.1,.25,1],
+  "linear": [0,0,1,1],
+  "ease-in": [.42,0,1,1],
+  "ease-out": [0,0,.58,1],
+  "ease-in-out": [.42,0,.58,1]
+}
 
 const timeDot = {
   fatherDom: '',
@@ -26,6 +44,9 @@ const timeDot = {
     }
   }
 }
+
+let referone = curves.ease
+let active = false
 
 </script>
 
@@ -47,7 +68,7 @@ const timeDot = {
     <div class="body">
       <div class="subtitle">
         <h2>Preview & compare</h2>
-        <button class="button gobtn"><span>GO!</span></button>
+        <button class="button gobtn" on:click="{() => {active = !active}}"><span>GO!</span></button>
       </div>
       <div class="timecontrol">
         <span>Duration:</span>
@@ -60,8 +81,11 @@ const timeDot = {
         <div class="time">{timeDot.time} s</div>
       </div>
       <div class="animate-plane">
-        <div class="bezier">
-          <BezierSvg size={1} />
+        <div class="plane-item{active ? ' transform' : ''}" style="transition-duration: {timeDot.time}s;transition-timing-function:cubic-bezier({$bezier[0]}, {$bezier[1]}, {$bezier[2]}, {$bezier[3]})">
+          <BezierSvg eclass={'target'} size={60} originalbezier={$bezier} />
+        </div>
+        <div class="plane-item{active ? ' transform' : ''}" style="transition-duration: {timeDot.time}s;transition-timing-function:cubic-bezier({referone[0]}, {referone[1]}, {referone[2]}, {referone[3]})">
+          <BezierSvg eclass={'refer'} size={60} originalbezier={referone} />
         </div>
       </div>
     </div>
@@ -108,6 +132,10 @@ const timeDot = {
 }
 .title:hover {
   text-shadow: 0 0 5px rgb(190, 46, 221);
+}
+
+.body {
+  max-width: 488px;
 }
 
 .subtitle {
@@ -167,8 +195,23 @@ const timeDot = {
   background-color: rgb(239, 203, 247);
 }
 
-.animate-plane .bezier{
-  width: 100px;
-  height: 100px;
+.animate-plane {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.animate-plane .plane-item{
+  position: relative;
+  margin: 24px 0 12px;
+  transition-property: left;
+  transition-delay: 0s;
+  width: 60px;
+  left: 0;
+}
+
+.plane-item.transform {
+  left: 72%;
 }
 </style>
