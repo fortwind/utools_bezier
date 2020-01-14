@@ -46,6 +46,12 @@ var app = (function () {
     function detach(node) {
         node.parentNode.removeChild(node);
     }
+    function destroy_each(iterations, detaching) {
+        for (let i = 0; i < iterations.length; i += 1) {
+            if (iterations[i])
+                iterations[i].d(detaching);
+        }
+    }
     function element(name) {
         return document.createElement(name);
     }
@@ -150,6 +156,19 @@ var app = (function () {
     }
     const outroing = new Set();
     let outros;
+    function group_outros() {
+        outros = {
+            r: 0,
+            c: [],
+            p: outros // parent group
+        };
+    }
+    function check_outros() {
+        if (!outros.r) {
+            run_all(outros.c);
+        }
+        outros = outros.p;
+    }
     function transition_in(block, local) {
         if (block && block.i) {
             outroing.delete(block);
@@ -395,7 +414,7 @@ var app = (function () {
         return { set, update, subscribe };
     }
 
-    const transbezier = localStorage.getItem('bezier') && localStorage.getItem('bezier').split(',');
+    const transbezier = (localStorage.getItem('bezier') && localStorage.getItem('bezier').split(',')) || [0, 0.5, 1, 0.5];
 
     const bezier = writable(transbezier);
 
@@ -432,26 +451,26 @@ var app = (function () {
     			t3 = space();
     			canvas_1 = element("canvas");
     			attr_dev(span0, "class", "dot top svelte-k89guf");
-    			add_location(span0, file, 105, 2, 2800);
+    			add_location(span0, file, 101, 2, 2737);
     			attr_dev(span1, "class", "dot bottom svelte-k89guf");
-    			add_location(span1, file, 106, 2, 2832);
+    			add_location(span1, file, 102, 2, 2769);
     			attr_dev(button0, "class", "ctrltop ctrlbtn svelte-k89guf");
     			set_style(button0, "top", /*ctrltop*/ ctx[2].top + "px");
     			set_style(button0, "left", /*ctrltop*/ ctx[2].left + "px");
-    			add_location(button0, file, 107, 2, 2867);
+    			add_location(button0, file, 103, 2, 2804);
     			attr_dev(button1, "class", "ctrlbottom ctrlbtn svelte-k89guf");
     			set_style(button1, "top", /*ctrlbottom*/ ctx[3].top + "px");
     			set_style(button1, "left", /*ctrlbottom*/ ctx[3].left + "px");
-    			add_location(button1, file, 108, 2, 3009);
+    			add_location(button1, file, 104, 2, 2946);
     			attr_dev(canvas_1, "id", "canvas");
     			attr_dev(canvas_1, "height", canvas_1_height_value = /*canvasSize*/ ctx[4].h);
     			attr_dev(canvas_1, "width", canvas_1_width_value = /*canvasSize*/ ctx[4].w);
     			attr_dev(canvas_1, "class", "svelte-k89guf");
-    			add_location(canvas_1, file, 109, 2, 3166);
+    			add_location(canvas_1, file, 105, 2, 3103);
     			attr_dev(div, "class", "coordinate-plane svelte-k89guf");
     			attr_dev(div, "data-progression", div_data_progression_value = /*cvsdata*/ ctx[1].p);
     			attr_dev(div, "data-time", div_data_time_value = /*cvsdata*/ ctx[1].t);
-    			add_location(div, file, 104, 0, 2689);
+    			add_location(div, file, 100, 0, 2626);
 
     			dispose = [
     				listen_dev(button0, "mousedown", /*mousedown_handler*/ ctx[10], false, false, false),
@@ -613,19 +632,14 @@ var app = (function () {
 
     	onMount(() => {
     		ctx = canvas.getContext("2d");
-
-    		if ($bezier) {
-    			const [x1, y1, x2, y2] = $bezier;
-    			const w = 300;
-    			const h = 300;
-    			$$invalidate(3, ctrlbottom.left = x1 * w, ctrlbottom);
-    			$$invalidate(3, ctrlbottom.top = 450 - y1 * h, ctrlbottom);
-    			$$invalidate(2, ctrltop.left = x2 * w, ctrltop);
-    			$$invalidate(2, ctrltop.top = 450 - y2 * h, ctrltop);
-    			draw(ctx, canvasSize.w, canvasSize.h, 0, 450, 300, 150, ctrlbottom.left, ctrlbottom.top, ctrltop.left, ctrltop.top);
-    		} else {
-    			ctrlDraw();
-    		}
+    		const [x1, y1, x2, y2] = $bezier;
+    		const w = 300;
+    		const h = 300;
+    		$$invalidate(3, ctrlbottom.left = x1 * w, ctrlbottom);
+    		$$invalidate(3, ctrlbottom.top = 450 - y1 * h, ctrlbottom);
+    		$$invalidate(2, ctrltop.left = x2 * w, ctrltop);
+    		$$invalidate(2, ctrltop.top = 450 - y2 * h, ctrltop);
+    		draw(ctx, canvasSize.w, canvasSize.h, 0, 450, 300, 150, ctrlbottom.left, ctrlbottom.top, ctrltop.left, ctrltop.top);
     	});
 
     	const mousedown_handler = () => ctrltop.move.call(ctrltop);
@@ -686,15 +700,20 @@ var app = (function () {
     	let div;
     	let svg;
     	let path0;
+    	let path0_class_value;
     	let path0_d_value;
     	let path1;
+    	let path1_class_value;
     	let path1_d_value;
     	let circle0;
+    	let circle0_class_value;
     	let circle0_cx_value;
     	let circle0_cy_value;
     	let path2;
+    	let path2_class_value;
     	let path2_d_value;
     	let circle1;
+    	let circle1_class_value;
     	let circle1_cx_value;
     	let circle1_cy_value;
     	let svg_width_value;
@@ -711,37 +730,37 @@ var app = (function () {
     			circle0 = svg_element("circle");
     			path2 = svg_element("path");
     			circle1 = svg_element("circle");
-    			attr_dev(path0, "class", "path svelte-f2393s");
+    			attr_dev(path0, "class", path0_class_value = "path " + /*eclass*/ ctx[1] + " svelte-kd34s");
     			attr_dev(path0, "d", path0_d_value = "M " + correct + " " + (1 + correct) + " C " + /*bezier*/ ctx[2][0] + " " + /*bezier*/ ctx[2][1] + ", " + /*bezier*/ ctx[2][2] + " " + /*bezier*/ ctx[2][3] + ", " + (1 + correct) + " " + correct);
     			attr_dev(path0, "stroke-width", "0.03");
     			attr_dev(path0, "fill", "transparent");
     			add_location(path0, file$1, 12, 4, 491);
-    			attr_dev(path1, "class", "path2dot svelte-f2393s");
+    			attr_dev(path1, "class", path1_class_value = "path2dot " + /*eclass*/ ctx[1] + " svelte-kd34s");
     			attr_dev(path1, "d", path1_d_value = "M " + correct + " " + (1 + correct) + " L " + /*bezier*/ ctx[2][0] + " " + /*bezier*/ ctx[2][1]);
     			attr_dev(path1, "stroke-width", "0.02");
     			attr_dev(path1, "fill", "transparent");
-    			add_location(path1, file$1, 13, 4, 667);
-    			attr_dev(circle0, "class", "dot svelte-f2393s");
+    			add_location(path1, file$1, 13, 4, 676);
+    			attr_dev(circle0, "class", circle0_class_value = "dot " + /*eclass*/ ctx[1] + " svelte-kd34s");
     			attr_dev(circle0, "cx", circle0_cx_value = /*bezier*/ ctx[2][0]);
     			attr_dev(circle0, "cy", circle0_cy_value = /*bezier*/ ctx[2][1]);
     			attr_dev(circle0, "r", "0.03");
-    			add_location(circle0, file$1, 14, 4, 797);
-    			attr_dev(path2, "class", "path2dot svelte-f2393s");
+    			add_location(circle0, file$1, 14, 4, 815);
+    			attr_dev(path2, "class", path2_class_value = "path2dot " + /*eclass*/ ctx[1] + " svelte-kd34s");
     			attr_dev(path2, "d", path2_d_value = "M " + (1 + correct) + " " + correct + " L " + /*bezier*/ ctx[2][2] + " " + /*bezier*/ ctx[2][3]);
     			attr_dev(path2, "stroke-width", "0.02");
     			attr_dev(path2, "fill", "transparent");
-    			add_location(path2, file$1, 15, 4, 866);
-    			attr_dev(circle1, "class", "dot svelte-f2393s");
+    			add_location(path2, file$1, 15, 4, 893);
+    			attr_dev(circle1, "class", circle1_class_value = "dot " + /*eclass*/ ctx[1] + " svelte-kd34s");
     			attr_dev(circle1, "cx", circle1_cx_value = /*bezier*/ ctx[2][2]);
     			attr_dev(circle1, "cy", circle1_cy_value = /*bezier*/ ctx[2][3]);
     			attr_dev(circle1, "r", "0.03");
-    			add_location(circle1, file$1, 16, 4, 996);
+    			add_location(circle1, file$1, 16, 4, 1032);
     			attr_dev(svg, "xmlns", "http://www.w3.org/2000/svg");
     			attr_dev(svg, "width", svg_width_value = "" + (/*size*/ ctx[0] + "px"));
     			attr_dev(svg, "height", svg_height_value = "" + (/*size*/ ctx[0] + "px"));
     			attr_dev(svg, "viewBox", svg_viewBox_value = "0 0 " + (1 + correct * 2) + " " + (1 + correct * 2));
     			add_location(svg, file$1, 11, 2, 361);
-    			attr_dev(div, "class", div_class_value = "bezier_item " + /*eclass*/ ctx[1] + " svelte-f2393s");
+    			attr_dev(div, "class", div_class_value = "bezier_item " + /*eclass*/ ctx[1] + " svelte-kd34s");
     			set_style(div, "width", /*size*/ ctx[0] + "px");
     			set_style(div, "height", /*size*/ ctx[0] + "px");
     			add_location(div, file$1, 10, 0, 284);
@@ -759,12 +778,24 @@ var app = (function () {
     			append_dev(svg, circle1);
     		},
     		p: function update(ctx, [dirty]) {
+    			if (dirty & /*eclass*/ 2 && path0_class_value !== (path0_class_value = "path " + /*eclass*/ ctx[1] + " svelte-kd34s")) {
+    				attr_dev(path0, "class", path0_class_value);
+    			}
+
     			if (dirty & /*bezier*/ 4 && path0_d_value !== (path0_d_value = "M " + correct + " " + (1 + correct) + " C " + /*bezier*/ ctx[2][0] + " " + /*bezier*/ ctx[2][1] + ", " + /*bezier*/ ctx[2][2] + " " + /*bezier*/ ctx[2][3] + ", " + (1 + correct) + " " + correct)) {
     				attr_dev(path0, "d", path0_d_value);
     			}
 
+    			if (dirty & /*eclass*/ 2 && path1_class_value !== (path1_class_value = "path2dot " + /*eclass*/ ctx[1] + " svelte-kd34s")) {
+    				attr_dev(path1, "class", path1_class_value);
+    			}
+
     			if (dirty & /*bezier*/ 4 && path1_d_value !== (path1_d_value = "M " + correct + " " + (1 + correct) + " L " + /*bezier*/ ctx[2][0] + " " + /*bezier*/ ctx[2][1])) {
     				attr_dev(path1, "d", path1_d_value);
+    			}
+
+    			if (dirty & /*eclass*/ 2 && circle0_class_value !== (circle0_class_value = "dot " + /*eclass*/ ctx[1] + " svelte-kd34s")) {
+    				attr_dev(circle0, "class", circle0_class_value);
     			}
 
     			if (dirty & /*bezier*/ 4 && circle0_cx_value !== (circle0_cx_value = /*bezier*/ ctx[2][0])) {
@@ -775,8 +806,16 @@ var app = (function () {
     				attr_dev(circle0, "cy", circle0_cy_value);
     			}
 
+    			if (dirty & /*eclass*/ 2 && path2_class_value !== (path2_class_value = "path2dot " + /*eclass*/ ctx[1] + " svelte-kd34s")) {
+    				attr_dev(path2, "class", path2_class_value);
+    			}
+
     			if (dirty & /*bezier*/ 4 && path2_d_value !== (path2_d_value = "M " + (1 + correct) + " " + correct + " L " + /*bezier*/ ctx[2][2] + " " + /*bezier*/ ctx[2][3])) {
     				attr_dev(path2, "d", path2_d_value);
+    			}
+
+    			if (dirty & /*eclass*/ 2 && circle1_class_value !== (circle1_class_value = "dot " + /*eclass*/ ctx[1] + " svelte-kd34s")) {
+    				attr_dev(circle1, "class", circle1_class_value);
     			}
 
     			if (dirty & /*bezier*/ 4 && circle1_cx_value !== (circle1_cx_value = /*bezier*/ ctx[2][2])) {
@@ -795,7 +834,7 @@ var app = (function () {
     				attr_dev(svg, "height", svg_height_value);
     			}
 
-    			if (dirty & /*eclass*/ 2 && div_class_value !== (div_class_value = "bezier_item " + /*eclass*/ ctx[1] + " svelte-f2393s")) {
+    			if (dirty & /*eclass*/ 2 && div_class_value !== (div_class_value = "bezier_item " + /*eclass*/ ctx[1] + " svelte-kd34s")) {
     				attr_dev(div, "class", div_class_value);
     			}
 
@@ -911,7 +950,13 @@ var app = (function () {
     /* src/App.svelte generated by Svelte v3.16.7 */
     const file$2 = "src/App.svelte";
 
-    // (64:4) {:else}
+    function get_each_context(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[9] = list[i];
+    	return child_ctx;
+    }
+
+    // (81:4) {:else}
     function create_else_block(ctx) {
     	let p;
 
@@ -919,7 +964,8 @@ var app = (function () {
     		c: function create() {
     			p = element("p");
     			p.textContent = "cubic-bezier(0, 0, 0, 0)";
-    			add_location(p, file$2, 64, 6, 1611);
+    			attr_dev(p, "class", "svelte-175o1ff");
+    			add_location(p, file$2, 81, 6, 2157);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -934,31 +980,31 @@ var app = (function () {
     		block,
     		id: create_else_block.name,
     		type: "else",
-    		source: "(64:4) {:else}",
+    		source: "(81:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (57:4) {#if $bezier}
+    // (74:4) {#if $bezier}
     function create_if_block(ctx) {
     	let p;
     	let t0;
     	let span0;
-    	let t1_value = /*$bezier*/ ctx[2][0] + "";
+    	let t1_value = /*$bezier*/ ctx[5][0] + "";
     	let t1;
     	let t2;
     	let span1;
-    	let t3_value = /*$bezier*/ ctx[2][1] + "";
+    	let t3_value = /*$bezier*/ ctx[5][1] + "";
     	let t3;
     	let t4;
     	let span2;
-    	let t5_value = /*$bezier*/ ctx[2][2] + "";
+    	let t5_value = /*$bezier*/ ctx[5][2] + "";
     	let t5;
     	let t6;
     	let span3;
-    	let t7_value = /*$bezier*/ ctx[2][3] + "";
+    	let t7_value = /*$bezier*/ ctx[5][3] + "";
     	let t7;
     	let t8;
 
@@ -978,16 +1024,16 @@ var app = (function () {
     			span3 = element("span");
     			t7 = text(t7_value);
     			t8 = text("\n      )");
-    			attr_dev(span0, "class", "bottompos svelte-a44oir");
-    			add_location(span0, file$2, 58, 8, 1384);
-    			attr_dev(span1, "class", "bottompos svelte-a44oir");
-    			add_location(span1, file$2, 59, 8, 1437);
-    			attr_dev(span2, "class", "toppos svelte-a44oir");
-    			add_location(span2, file$2, 60, 8, 1490);
-    			attr_dev(span3, "class", "toppos svelte-a44oir");
-    			add_location(span3, file$2, 61, 8, 1540);
-    			attr_dev(p, "class", "title svelte-a44oir");
-    			add_location(p, file$2, 57, 6, 1345);
+    			attr_dev(span0, "class", "bottompos svelte-175o1ff");
+    			add_location(span0, file$2, 75, 8, 1930);
+    			attr_dev(span1, "class", "bottompos svelte-175o1ff");
+    			add_location(span1, file$2, 76, 8, 1983);
+    			attr_dev(span2, "class", "toppos svelte-175o1ff");
+    			add_location(span2, file$2, 77, 8, 2036);
+    			attr_dev(span3, "class", "toppos svelte-175o1ff");
+    			add_location(span3, file$2, 78, 8, 2086);
+    			attr_dev(p, "class", "title svelte-175o1ff");
+    			add_location(p, file$2, 74, 6, 1891);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -1006,10 +1052,10 @@ var app = (function () {
     			append_dev(p, t8);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*$bezier*/ 4 && t1_value !== (t1_value = /*$bezier*/ ctx[2][0] + "")) set_data_dev(t1, t1_value);
-    			if (dirty & /*$bezier*/ 4 && t3_value !== (t3_value = /*$bezier*/ ctx[2][1] + "")) set_data_dev(t3, t3_value);
-    			if (dirty & /*$bezier*/ 4 && t5_value !== (t5_value = /*$bezier*/ ctx[2][2] + "")) set_data_dev(t5, t5_value);
-    			if (dirty & /*$bezier*/ 4 && t7_value !== (t7_value = /*$bezier*/ ctx[2][3] + "")) set_data_dev(t7, t7_value);
+    			if (dirty & /*$bezier*/ 32 && t1_value !== (t1_value = /*$bezier*/ ctx[5][0] + "")) set_data_dev(t1, t1_value);
+    			if (dirty & /*$bezier*/ 32 && t3_value !== (t3_value = /*$bezier*/ ctx[5][1] + "")) set_data_dev(t3, t3_value);
+    			if (dirty & /*$bezier*/ 32 && t5_value !== (t5_value = /*$bezier*/ ctx[5][2] + "")) set_data_dev(t5, t5_value);
+    			if (dirty & /*$bezier*/ 32 && t7_value !== (t7_value = /*$bezier*/ ctx[5][3] + "")) set_data_dev(t7, t7_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(p);
@@ -1020,7 +1066,95 @@ var app = (function () {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(57:4) {#if $bezier}",
+    		source: "(74:4) {#if $bezier}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (116:10) {#each Object.keys(curves) as key}
+    function create_each_block(ctx) {
+    	let div;
+    	let t0;
+    	let p;
+    	let t1_value = /*key*/ ctx[9] + "";
+    	let t1;
+    	let t2;
+    	let current;
+    	let dispose;
+
+    	const beziersvg = new Beziersvg({
+    			props: {
+    				eclass: /*key*/ ctx[9] === /*chosenone*/ ctx[3]
+    				? "plain is-active"
+    				: "plain",
+    				size: 100,
+    				originalbezier: /*curves*/ ctx[0][/*key*/ ctx[9]]
+    			},
+    			$$inline: true
+    		});
+
+    	function click_handler_1(...args) {
+    		return /*click_handler_1*/ ctx[8](/*key*/ ctx[9], ...args);
+    	}
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			create_component(beziersvg.$$.fragment);
+    			t0 = space();
+    			p = element("p");
+    			t1 = text(t1_value);
+    			t2 = space();
+    			attr_dev(p, "class", "svelte-175o1ff");
+    			add_location(p, file$2, 118, 14, 4047);
+    			attr_dev(div, "class", "exhibit_item svelte-175o1ff");
+    			add_location(div, file$2, 116, 12, 3838);
+    			dispose = listen_dev(div, "click", click_handler_1, false, false, false);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			mount_component(beziersvg, div, null);
+    			append_dev(div, t0);
+    			append_dev(div, p);
+    			append_dev(p, t1);
+    			append_dev(div, t2);
+    			current = true;
+    		},
+    		p: function update(new_ctx, dirty) {
+    			ctx = new_ctx;
+    			const beziersvg_changes = {};
+
+    			if (dirty & /*curves, chosenone*/ 9) beziersvg_changes.eclass = /*key*/ ctx[9] === /*chosenone*/ ctx[3]
+    			? "plain is-active"
+    			: "plain";
+
+    			if (dirty & /*curves*/ 1) beziersvg_changes.originalbezier = /*curves*/ ctx[0][/*key*/ ctx[9]];
+    			beziersvg.$set(beziersvg_changes);
+    			if ((!current || dirty & /*curves*/ 1) && t1_value !== (t1_value = /*key*/ ctx[9] + "")) set_data_dev(t1, t1_value);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(beziersvg.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(beziersvg.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			destroy_component(beziersvg);
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block.name,
+    		type: "each",
+    		source: "(116:10) {#each Object.keys(curves) as key}",
     		ctx
     	});
 
@@ -1028,14 +1162,15 @@ var app = (function () {
     }
 
     function create_fragment$2(ctx) {
-    	let div11;
+    	let div15;
     	let t0;
-    	let div10;
+    	let div14;
     	let div0;
     	let t1;
+    	let div13;
     	let div9;
     	let div1;
-    	let h2;
+    	let h20;
     	let t3;
     	let button;
     	let span0;
@@ -1050,7 +1185,7 @@ var app = (function () {
     	let span3;
     	let t9;
     	let div4;
-    	let t10_value = /*timeDot*/ ctx[0].time + "";
+    	let t10_value = /*timeDot*/ ctx[1].time + "";
     	let t10;
     	let t11;
     	let t12;
@@ -1060,12 +1195,20 @@ var app = (function () {
     	let t13;
     	let div7;
     	let div7_class_value;
+    	let t14;
+    	let div12;
+    	let div10;
+    	let h21;
+    	let t16;
+    	let p;
+    	let t18;
+    	let div11;
     	let current;
     	let dispose;
     	const mcanvas = new MCanvas({ $$inline: true });
 
     	function select_block_type(ctx, dirty) {
-    		if (/*$bezier*/ ctx[2]) return create_if_block;
+    		if (/*$bezier*/ ctx[5]) return create_if_block;
     		return create_else_block;
     	}
 
@@ -1075,8 +1218,8 @@ var app = (function () {
     	const beziersvg0 = new Beziersvg({
     			props: {
     				eclass: "target",
-    				size: 60,
-    				originalbezier: /*$bezier*/ ctx[2]
+    				size: 80,
+    				originalbezier: /*$bezier*/ ctx[5]
     			},
     			$$inline: true
     		});
@@ -1084,25 +1227,37 @@ var app = (function () {
     	const beziersvg1 = new Beziersvg({
     			props: {
     				eclass: "refer",
-    				size: 60,
-    				originalbezier: /*referone*/ ctx[3]
+    				size: 80,
+    				originalbezier: /*referone*/ ctx[4]
     			},
     			$$inline: true
     		});
 
+    	let each_value = Object.keys(/*curves*/ ctx[0]);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    	}
+
+    	const out = i => transition_out(each_blocks[i], 1, 1, () => {
+    		each_blocks[i] = null;
+    	});
+
     	const block = {
     		c: function create() {
-    			div11 = element("div");
+    			div15 = element("div");
     			create_component(mcanvas.$$.fragment);
     			t0 = space();
-    			div10 = element("div");
+    			div14 = element("div");
     			div0 = element("div");
     			if_block.c();
     			t1 = space();
+    			div13 = element("div");
     			div9 = element("div");
     			div1 = element("div");
-    			h2 = element("h2");
-    			h2.textContent = "Preview & compare";
+    			h20 = element("h2");
+    			h20.textContent = "Preview & compare";
     			t3 = space();
     			button = element("button");
     			span0 = element("span");
@@ -1128,54 +1283,80 @@ var app = (function () {
     			t13 = space();
     			div7 = element("div");
     			create_component(beziersvg1.$$.fragment);
+    			t14 = space();
+    			div12 = element("div");
+    			div10 = element("div");
+    			h21 = element("h2");
+    			h21.textContent = "Library";
+    			t16 = space();
+    			p = element("p");
+    			p.textContent = "Click on a curve to compare it with the current one.";
+    			t18 = space();
+    			div11 = element("div");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
     			attr_dev(div0, "class", "header");
-    			add_location(div0, file$2, 55, 4, 1300);
-    			add_location(h2, file$2, 69, 8, 1724);
-    			add_location(span0, file$2, 70, 75, 1826);
-    			attr_dev(button, "class", "button gobtn svelte-a44oir");
-    			add_location(button, file$2, 70, 8, 1759);
-    			attr_dev(div1, "class", "subtitle svelte-a44oir");
-    			add_location(div1, file$2, 68, 6, 1693);
-    			add_location(span1, file$2, 73, 8, 1905);
-    			attr_dev(span2, "class", "bgfill svelte-a44oir");
-    			set_style(span2, "width", /*timeDot*/ ctx[0].left + "px");
-    			add_location(span2, file$2, 76, 12, 2036);
-    			attr_dev(span3, "class", "inner-dot svelte-a44oir");
-    			set_style(span3, "left", /*timeDot*/ ctx[0].left + "px");
-    			add_location(span3, file$2, 77, 12, 2108);
-    			attr_dev(div2, "class", "inner-slider svelte-a44oir");
-    			add_location(div2, file$2, 75, 10, 1967);
-    			attr_dev(div3, "class", "slider svelte-a44oir");
-    			add_location(div3, file$2, 74, 8, 1936);
+    			add_location(div0, file$2, 72, 4, 1846);
+    			add_location(h20, file$2, 87, 10, 2302);
+    			add_location(span0, file$2, 88, 77, 2406);
+    			attr_dev(button, "class", "button gobtn svelte-175o1ff");
+    			add_location(button, file$2, 88, 10, 2339);
+    			attr_dev(div1, "class", "subtitle svelte-175o1ff");
+    			add_location(div1, file$2, 86, 8, 2269);
+    			add_location(span1, file$2, 91, 10, 2491);
+    			attr_dev(span2, "class", "bgfill svelte-175o1ff");
+    			set_style(span2, "width", /*timeDot*/ ctx[1].left + "px");
+    			add_location(span2, file$2, 94, 14, 2628);
+    			attr_dev(span3, "class", "inner-dot svelte-175o1ff");
+    			set_style(span3, "left", /*timeDot*/ ctx[1].left + "px");
+    			add_location(span3, file$2, 95, 14, 2702);
+    			attr_dev(div2, "class", "inner-slider svelte-175o1ff");
+    			add_location(div2, file$2, 93, 12, 2557);
+    			attr_dev(div3, "class", "slider svelte-175o1ff");
+    			add_location(div3, file$2, 92, 10, 2524);
     			attr_dev(div4, "class", "time");
-    			add_location(div4, file$2, 80, 8, 2238);
-    			attr_dev(div5, "class", "timecontrol svelte-a44oir");
-    			add_location(div5, file$2, 72, 6, 1871);
-    			attr_dev(div6, "class", div6_class_value = "plane-item" + (/*active*/ ctx[1] ? " transform" : "") + " svelte-a44oir");
-    			set_style(div6, "transition-duration", /*timeDot*/ ctx[0].time + "s");
-    			set_style(div6, "transition-timing-function", "cubic-bezier(" + /*$bezier*/ ctx[2][0] + ", " + /*$bezier*/ ctx[2][1] + ", " + /*$bezier*/ ctx[2][2] + ", " + /*$bezier*/ ctx[2][3] + ")");
-    			add_location(div6, file$2, 83, 8, 2334);
-    			attr_dev(div7, "class", div7_class_value = "plane-item" + (/*active*/ ctx[1] ? " transform" : "") + " svelte-a44oir");
-    			set_style(div7, "transition-duration", /*timeDot*/ ctx[0].time + "s");
-    			set_style(div7, "transition-timing-function", "cubic-bezier(" + /*referone*/ ctx[3][0] + ", " + /*referone*/ ctx[3][1] + ", " + /*referone*/ ctx[3][2] + ", " + /*referone*/ ctx[3][3] + ")");
-    			add_location(div7, file$2, 86, 8, 2628);
-    			attr_dev(div8, "class", "animate-plane svelte-a44oir");
-    			add_location(div8, file$2, 82, 6, 2298);
-    			attr_dev(div9, "class", "body svelte-a44oir");
-    			add_location(div9, file$2, 67, 4, 1668);
-    			attr_dev(div10, "class", "container");
-    			add_location(div10, file$2, 54, 2, 1272);
-    			attr_dev(div11, "id", "app");
-    			attr_dev(div11, "class", "svelte-a44oir");
-    			add_location(div11, file$2, 52, 0, 1233);
+    			add_location(div4, file$2, 98, 10, 2838);
+    			attr_dev(div5, "class", "timecontrol svelte-175o1ff");
+    			add_location(div5, file$2, 90, 8, 2455);
+    			attr_dev(div6, "class", div6_class_value = "plane-item" + (/*active*/ ctx[2] ? " transform" : "") + " svelte-175o1ff");
+    			set_style(div6, "transition-duration", /*timeDot*/ ctx[1].time + "s");
+    			set_style(div6, "transition-timing-function", "cubic-bezier(" + /*$bezier*/ ctx[5][0] + ", " + /*$bezier*/ ctx[5][1] + ", " + /*$bezier*/ ctx[5][2] + ", " + /*$bezier*/ ctx[5][3] + ")");
+    			add_location(div6, file$2, 101, 10, 2940);
+    			attr_dev(div7, "class", div7_class_value = "plane-item" + (/*active*/ ctx[2] ? " transform" : "") + " svelte-175o1ff");
+    			set_style(div7, "transition-duration", /*timeDot*/ ctx[1].time + "s");
+    			set_style(div7, "transition-timing-function", "cubic-bezier(" + /*referone*/ ctx[4][0] + ", " + /*referone*/ ctx[4][1] + ", " + /*referone*/ ctx[4][2] + ", " + /*referone*/ ctx[4][3] + ")");
+    			add_location(div7, file$2, 104, 10, 3240);
+    			attr_dev(div8, "class", "animate-plane svelte-175o1ff");
+    			add_location(div8, file$2, 100, 8, 2902);
+    			attr_dev(div9, "class", "body svelte-175o1ff");
+    			add_location(div9, file$2, 85, 6, 2242);
+    			add_location(h21, file$2, 111, 10, 3630);
+    			attr_dev(p, "class", "explain svelte-175o1ff");
+    			add_location(p, file$2, 112, 10, 3657);
+    			attr_dev(div10, "class", "subtitle");
+    			add_location(div10, file$2, 110, 8, 3597);
+    			attr_dev(div11, "class", "exhibition svelte-175o1ff");
+    			add_location(div11, file$2, 114, 8, 3756);
+    			attr_dev(div12, "class", "footer svelte-175o1ff");
+    			add_location(div12, file$2, 109, 6, 3568);
+    			attr_dev(div13, "class", "content svelte-175o1ff");
+    			add_location(div13, file$2, 84, 4, 2214);
+    			attr_dev(div14, "class", "container");
+    			add_location(div14, file$2, 71, 2, 1818);
+    			attr_dev(div15, "id", "app");
+    			attr_dev(div15, "class", "svelte-175o1ff");
+    			add_location(div15, file$2, 69, 0, 1779);
 
     			dispose = [
-    				listen_dev(button, "click", /*click_handler*/ ctx[5], false, false, false),
+    				listen_dev(button, "click", /*click_handler*/ ctx[6], false, false, false),
     				listen_dev(
     					span3,
     					"mousedown",
     					function () {
-    						if (is_function(/*timeDot*/ ctx[0].move)) /*timeDot*/ ctx[0].move.apply(this, arguments);
+    						if (is_function(/*timeDot*/ ctx[1].move)) /*timeDot*/ ctx[1].move.apply(this, arguments);
     					},
     					false,
     					false,
@@ -1187,16 +1368,17 @@ var app = (function () {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
     		},
     		m: function mount(target, anchor) {
-    			insert_dev(target, div11, anchor);
-    			mount_component(mcanvas, div11, null);
-    			append_dev(div11, t0);
-    			append_dev(div11, div10);
-    			append_dev(div10, div0);
+    			insert_dev(target, div15, anchor);
+    			mount_component(mcanvas, div15, null);
+    			append_dev(div15, t0);
+    			append_dev(div15, div14);
+    			append_dev(div14, div0);
     			if_block.m(div0, null);
-    			append_dev(div10, t1);
-    			append_dev(div10, div9);
+    			append_dev(div14, t1);
+    			append_dev(div14, div13);
+    			append_dev(div13, div9);
     			append_dev(div9, div1);
-    			append_dev(div1, h2);
+    			append_dev(div1, h20);
     			append_dev(div1, t3);
     			append_dev(div1, button);
     			append_dev(button, span0);
@@ -1209,7 +1391,7 @@ var app = (function () {
     			append_dev(div2, span2);
     			append_dev(div2, t8);
     			append_dev(div2, span3);
-    			/*div2_binding*/ ctx[6](div2);
+    			/*div2_binding*/ ctx[7](div2);
     			append_dev(div5, t9);
     			append_dev(div5, div4);
     			append_dev(div4, t10);
@@ -1221,6 +1403,19 @@ var app = (function () {
     			append_dev(div8, t13);
     			append_dev(div8, div7);
     			mount_component(beziersvg1, div7, null);
+    			append_dev(div13, t14);
+    			append_dev(div13, div12);
+    			append_dev(div12, div10);
+    			append_dev(div10, h21);
+    			append_dev(div10, t16);
+    			append_dev(div10, p);
+    			append_dev(div12, t18);
+    			append_dev(div12, div11);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(div11, null);
+    			}
+
     			current = true;
     		},
     		p: function update(new_ctx, [dirty]) {
@@ -1238,37 +1433,72 @@ var app = (function () {
     				}
     			}
 
-    			if (!current || dirty & /*timeDot*/ 1) {
-    				set_style(span2, "width", /*timeDot*/ ctx[0].left + "px");
+    			if (!current || dirty & /*timeDot*/ 2) {
+    				set_style(span2, "width", /*timeDot*/ ctx[1].left + "px");
     			}
 
-    			if (!current || dirty & /*timeDot*/ 1) {
-    				set_style(span3, "left", /*timeDot*/ ctx[0].left + "px");
+    			if (!current || dirty & /*timeDot*/ 2) {
+    				set_style(span3, "left", /*timeDot*/ ctx[1].left + "px");
     			}
 
-    			if ((!current || dirty & /*timeDot*/ 1) && t10_value !== (t10_value = /*timeDot*/ ctx[0].time + "")) set_data_dev(t10, t10_value);
+    			if ((!current || dirty & /*timeDot*/ 2) && t10_value !== (t10_value = /*timeDot*/ ctx[1].time + "")) set_data_dev(t10, t10_value);
     			const beziersvg0_changes = {};
-    			if (dirty & /*$bezier*/ 4) beziersvg0_changes.originalbezier = /*$bezier*/ ctx[2];
+    			if (dirty & /*$bezier*/ 32) beziersvg0_changes.originalbezier = /*$bezier*/ ctx[5];
     			beziersvg0.$set(beziersvg0_changes);
 
-    			if (!current || dirty & /*active*/ 2 && div6_class_value !== (div6_class_value = "plane-item" + (/*active*/ ctx[1] ? " transform" : "") + " svelte-a44oir")) {
+    			if (!current || dirty & /*active*/ 4 && div6_class_value !== (div6_class_value = "plane-item" + (/*active*/ ctx[2] ? " transform" : "") + " svelte-175o1ff")) {
     				attr_dev(div6, "class", div6_class_value);
     			}
 
-    			if (!current || dirty & /*timeDot*/ 1) {
-    				set_style(div6, "transition-duration", /*timeDot*/ ctx[0].time + "s");
+    			if (!current || dirty & /*timeDot*/ 2) {
+    				set_style(div6, "transition-duration", /*timeDot*/ ctx[1].time + "s");
     			}
 
-    			if (!current || dirty & /*$bezier*/ 4) {
-    				set_style(div6, "transition-timing-function", "cubic-bezier(" + /*$bezier*/ ctx[2][0] + ", " + /*$bezier*/ ctx[2][1] + ", " + /*$bezier*/ ctx[2][2] + ", " + /*$bezier*/ ctx[2][3] + ")");
+    			if (!current || dirty & /*$bezier*/ 32) {
+    				set_style(div6, "transition-timing-function", "cubic-bezier(" + /*$bezier*/ ctx[5][0] + ", " + /*$bezier*/ ctx[5][1] + ", " + /*$bezier*/ ctx[5][2] + ", " + /*$bezier*/ ctx[5][3] + ")");
     			}
 
-    			if (!current || dirty & /*active*/ 2 && div7_class_value !== (div7_class_value = "plane-item" + (/*active*/ ctx[1] ? " transform" : "") + " svelte-a44oir")) {
+    			const beziersvg1_changes = {};
+    			if (dirty & /*referone*/ 16) beziersvg1_changes.originalbezier = /*referone*/ ctx[4];
+    			beziersvg1.$set(beziersvg1_changes);
+
+    			if (!current || dirty & /*active*/ 4 && div7_class_value !== (div7_class_value = "plane-item" + (/*active*/ ctx[2] ? " transform" : "") + " svelte-175o1ff")) {
     				attr_dev(div7, "class", div7_class_value);
     			}
 
-    			if (!current || dirty & /*timeDot*/ 1) {
-    				set_style(div7, "transition-duration", /*timeDot*/ ctx[0].time + "s");
+    			if (!current || dirty & /*timeDot*/ 2) {
+    				set_style(div7, "transition-duration", /*timeDot*/ ctx[1].time + "s");
+    			}
+
+    			if (!current || dirty & /*referone*/ 16) {
+    				set_style(div7, "transition-timing-function", "cubic-bezier(" + /*referone*/ ctx[4][0] + ", " + /*referone*/ ctx[4][1] + ", " + /*referone*/ ctx[4][2] + ", " + /*referone*/ ctx[4][3] + ")");
+    			}
+
+    			if (dirty & /*chosenone, Object, curves*/ 9) {
+    				each_value = Object.keys(/*curves*/ ctx[0]);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    						transition_in(each_blocks[i], 1);
+    					} else {
+    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i].c();
+    						transition_in(each_blocks[i], 1);
+    						each_blocks[i].m(div11, null);
+    					}
+    				}
+
+    				group_outros();
+
+    				for (i = each_value.length; i < each_blocks.length; i += 1) {
+    					out(i);
+    				}
+
+    				check_outros();
     			}
     		},
     		i: function intro(local) {
@@ -1276,21 +1506,33 @@ var app = (function () {
     			transition_in(mcanvas.$$.fragment, local);
     			transition_in(beziersvg0.$$.fragment, local);
     			transition_in(beziersvg1.$$.fragment, local);
+
+    			for (let i = 0; i < each_value.length; i += 1) {
+    				transition_in(each_blocks[i]);
+    			}
+
     			current = true;
     		},
     		o: function outro(local) {
     			transition_out(mcanvas.$$.fragment, local);
     			transition_out(beziersvg0.$$.fragment, local);
     			transition_out(beziersvg1.$$.fragment, local);
+    			each_blocks = each_blocks.filter(Boolean);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				transition_out(each_blocks[i]);
+    			}
+
     			current = false;
     		},
     		d: function destroy(detaching) {
-    			if (detaching) detach_dev(div11);
+    			if (detaching) detach_dev(div15);
     			destroy_component(mcanvas);
     			if_block.d();
-    			/*div2_binding*/ ctx[6](null);
+    			/*div2_binding*/ ctx[7](null);
     			destroy_component(beziersvg0);
     			destroy_component(beziersvg1);
+    			destroy_each(each_blocks, detaching);
     			run_all(dispose);
     		}
     	};
@@ -1306,22 +1548,59 @@ var app = (function () {
     	return block;
     }
 
+    function initCurves() {
+    	try {
+    		let curves_db = null;
+
+    		if (curves_db.lengt === 0) {
+    			curves_db = [
+    				{
+    					_id: "curves_ease",
+    					val: [0.25, 0.1, 0.25, 1]
+    				},
+    				{ _id: "curves_linear", val: [0, 0, 1, 1] },
+    				{
+    					_id: "curves_ease-in",
+    					val: [0.42, 0, 1, 1]
+    				},
+    				{
+    					_id: "curves_ease-out",
+    					val: [0, 0, 0.58, 1]
+    				},
+    				{
+    					_id: "curves_ease-in-out",
+    					val: [0.42, 0, 0.58, 1]
+    				}
+    			];
+
+    			curves_db.map(v => utools.db.put(v));
+    		}
+
+    		const curves2obj = {};
+
+    		curves_db.map(v => {
+    			Object.assign(curves2obj, { [v._id.slice(7)]: v.val });
+    		});
+
+    		return curves2obj;
+    	} catch {
+    		return null;
+    	}
+    }
+
     function instance$2($$self, $$props, $$invalidate) {
     	let $bezier;
     	validate_store(bezier, "bezier");
-    	component_subscribe($$self, bezier, $$value => $$invalidate(2, $bezier = $$value));
+    	component_subscribe($$self, bezier, $$value => $$invalidate(5, $bezier = $$value));
+    	let curves = { "ease": [0.25, 0.1, 0.25, 1] };
 
-    	utools.onPluginOut(() => {
-    		localStorage.setItem("bezier", $bezier);
+    	utools.onPluginReady(() => {
+    		const curves_temp = initCurves();
+
+    		if (curves_temp) {
+    			$$invalidate(0, curves = curves_temp);
+    		}
     	});
-
-    	const curves = {
-    		"ease": [0.25, 0.1, 0.25, 1],
-    		"linear": [0, 0, 1, 1],
-    		"ease-in": [0.42, 0, 1, 1],
-    		"ease-out": [0, 0, 0.58, 1],
-    		"ease-in-out": [0.42, 0, 0.58, 1]
-    	};
 
     	const timeDot = {
     		fatherDom: "",
@@ -1333,8 +1612,8 @@ var app = (function () {
 
     			document.onmousemove = ({ clientX }) => {
     				dist = clientX - x - 2;
-    				$$invalidate(0, timeDot.left = dist < 8 ? 8 : dist > width - 10 ? width - 10 : dist, timeDot);
-    				$$invalidate(0, timeDot.time = Math.round((timeDot.left - 7) / (width - 17) * 100) / 10, timeDot);
+    				$$invalidate(1, timeDot.left = dist < 8 ? 8 : dist > width - 10 ? width - 10 : dist, timeDot);
+    				$$invalidate(1, timeDot.time = Math.round((timeDot.left - 7) / (width - 17) * 100) / 10, timeDot);
     			};
 
     			document.onmouseup = () => {
@@ -1344,31 +1623,58 @@ var app = (function () {
     		}
     	};
 
-    	let referone = curves.ease;
     	let active = false;
+    	let chosenone = localStorage.getItem("chosenone") || "";
+
+    	utools.onPluginOut(() => {
+    		localStorage.setItem("bezier", $bezier);
+    		localStorage.setItem("chosenone", chosenone);
+    	});
 
     	const click_handler = () => {
-    		$$invalidate(1, active = !active);
+    		$$invalidate(2, active = !active);
     	};
 
     	function div2_binding($$value) {
     		binding_callbacks[$$value ? "unshift" : "push"](() => {
     			timeDot.fatherDom = $$value;
-    			$$invalidate(0, timeDot);
+    			$$invalidate(1, timeDot);
     		});
     	}
+
+    	const click_handler_1 = key => $$invalidate(3, chosenone = key);
 
     	$$self.$capture_state = () => {
     		return {};
     	};
 
     	$$self.$inject_state = $$props => {
-    		if ("referone" in $$props) $$invalidate(3, referone = $$props.referone);
-    		if ("active" in $$props) $$invalidate(1, active = $$props.active);
+    		if ("curves" in $$props) $$invalidate(0, curves = $$props.curves);
+    		if ("active" in $$props) $$invalidate(2, active = $$props.active);
+    		if ("chosenone" in $$props) $$invalidate(3, chosenone = $$props.chosenone);
+    		if ("referone" in $$props) $$invalidate(4, referone = $$props.referone);
     		if ("$bezier" in $$props) bezier.set($bezier = $$props.$bezier);
     	};
 
-    	return [timeDot, active, $bezier, referone, curves, click_handler, div2_binding];
+    	let referone;
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*curves, chosenone*/ 9) {
+    			 $$invalidate(4, referone = curves[chosenone || "ease"]);
+    		}
+    	};
+
+    	return [
+    		curves,
+    		timeDot,
+    		active,
+    		chosenone,
+    		referone,
+    		$bezier,
+    		click_handler,
+    		div2_binding,
+    		click_handler_1
+    	];
     }
 
     class App extends SvelteComponentDev {

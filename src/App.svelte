@@ -1,29 +1,40 @@
 <script>
 import { onMount, onDestroy } from 'svelte'
-import { bezier } from './store.js'
 import MCanvas from './mCanvas.svelte'
 import BezierSvg from './beziersvg.svelte'
+import { bezier } from './store.js'
 
-// utools.onPluginReady(() => {
-//   localStorage.setItem('curves', JSON.stringify({
-//     "ease": ".25,.1,.25,1",
-//     "linear": "0,0,1,1",
-//     "ease-in": ".42,0,1,1",
-//     "ease-out": "0,0,.58,1",
-//     "ease-in-out": ".42,0,.58,1"
-//   }))
-// })
+let curves = { 'ease': [.25, .1, .25, 1] }
 
-utools.onPluginOut(() => {
-  localStorage.setItem('bezier', $bezier)
+utools.onPluginReady(() => {
+  const curves_temp = initCurves()
+  if (curves_temp) {
+    curves = curves_temp
+  }
 })
 
-const curves = {
-  "ease": [.25,.1,.25,1],
-  "linear": [0,0,1,1],
-  "ease-in": [.42,0,1,1],
-  "ease-out": [0,0,.58,1],
-  "ease-in-out": [.42,0,.58,1]
+function initCurves () {
+  try {
+    // let curves_db = utools.db.allDocs('curves')
+    let curves_db = null
+    if (curves_db.lengt === 0) {
+      curves_db = [
+        { _id: 'curves_ease', val: [.25, .1, .25, 1] },
+        { _id: 'curves_linear', val: [0, 0, 1, 1] },
+        { _id: 'curves_ease-in', val: [.42, 0, 1, 1] },
+        { _id: 'curves_ease-out', val: [0, 0, .58, 1] },
+        { _id: 'curves_ease-in-out', val: [.42, 0, .58, 1] }
+      ]
+      curves_db.map(v => utools.db.put(v))
+    }
+    const curves2obj = {}
+    curves_db.map(v => {
+      Object.assign(curves2obj, { [v._id.slice(7)]: v.val })
+    })
+    return curves2obj
+  } catch {
+    return null
+  }
 }
 
 const timeDot = {
@@ -45,9 +56,15 @@ const timeDot = {
   }
 }
 
-let referone = curves.ease
 let active = false
+let chosenone = localStorage.getItem('chosenone') || ''
 
+$: referone = curves[chosenone || 'ease']
+
+utools.onPluginOut(() => {
+  localStorage.setItem('bezier', $bezier)
+  localStorage.setItem('chosenone', chosenone)
+})
 </script>
 
 <div id="app">
@@ -65,27 +82,43 @@ let active = false
       <p>cubic-bezier(0, 0, 0, 0)</p>
     {/if}
     </div>
-    <div class="body">
-      <div class="subtitle">
-        <h2>Preview & compare</h2>
-        <button class="button gobtn" on:click="{() => {active = !active}}"><span>GO!</span></button>
-      </div>
-      <div class="timecontrol">
-        <span>Duration:</span>
-        <div class="slider">
-          <div bind:this={timeDot.fatherDom} class="inner-slider">
-            <span class="bgfill" style="width:{timeDot.left}px"></span>
-            <span class="inner-dot" style="left:{timeDot.left}px" on:mousedown={timeDot.move}></span>
+    <div class="content">
+      <div class="body">
+        <div class="subtitle">
+          <h2>Preview & compare</h2>
+          <button class="button gobtn" on:click="{() => {active = !active}}"><span>GO!</span></button>
+        </div>
+        <div class="timecontrol">
+          <span>Duration:</span>
+          <div class="slider">
+            <div bind:this={timeDot.fatherDom} class="inner-slider">
+              <span class="bgfill" style="width:{timeDot.left}px"></span>
+              <span class="inner-dot" style="left:{timeDot.left}px" on:mousedown={timeDot.move}></span>
+            </div>
+          </div>
+          <div class="time">{timeDot.time} s</div>
+        </div>
+        <div class="animate-plane">
+          <div class="plane-item{active ? ' transform' : ''}" style="transition-duration: {timeDot.time}s;transition-timing-function:cubic-bezier({$bezier[0]}, {$bezier[1]}, {$bezier[2]}, {$bezier[3]})">
+            <BezierSvg eclass={'target'} size={80} originalbezier={$bezier} />
+          </div>
+          <div class="plane-item{active ? ' transform' : ''}" style="transition-duration: {timeDot.time}s;transition-timing-function:cubic-bezier({referone[0]}, {referone[1]}, {referone[2]}, {referone[3]})">
+            <BezierSvg eclass={'refer'} size={80} originalbezier={referone} />
           </div>
         </div>
-        <div class="time">{timeDot.time} s</div>
       </div>
-      <div class="animate-plane">
-        <div class="plane-item{active ? ' transform' : ''}" style="transition-duration: {timeDot.time}s;transition-timing-function:cubic-bezier({$bezier[0]}, {$bezier[1]}, {$bezier[2]}, {$bezier[3]})">
-          <BezierSvg eclass={'target'} size={60} originalbezier={$bezier} />
+      <div class="footer">
+        <div class="subtitle">
+          <h2>Library</h2>
+          <p class="explain">Click on a curve to compare it with the current one.</p>
         </div>
-        <div class="plane-item{active ? ' transform' : ''}" style="transition-duration: {timeDot.time}s;transition-timing-function:cubic-bezier({referone[0]}, {referone[1]}, {referone[2]}, {referone[3]})">
-          <BezierSvg eclass={'refer'} size={60} originalbezier={referone} />
+        <div class="exhibition">
+          {#each Object.keys(curves) as key}
+            <div class="exhibit_item" on:click={() => chosenone = key}>
+              <BezierSvg eclass={key === chosenone ? 'plain is-active' : 'plain'} size={100} originalbezier={curves[key]}></BezierSvg>
+              <p>{key}</p>
+            </div>
+          {/each}
         </div>
       </div>
     </div>
@@ -134,11 +167,24 @@ let active = false
   text-shadow: 0 0 5px rgb(190, 46, 221);
 }
 
-.body {
-  max-width: 488px;
+.content {
+  display: flex;
+  justify-content: space-between;
 }
 
-.subtitle {
+@media (max-width: 1111px) {
+  .content {
+    flex-wrap: wrap;
+  }
+}
+
+.body {
+  max-width: 522px;
+  min-width: 337px;
+  margin-right: 36px;
+}
+
+.body .subtitle {
   display: flex;
   align-items: center;
 }
@@ -213,5 +259,39 @@ let active = false
 
 .plane-item.transform {
   left: 72%;
+}
+
+.footer {
+  min-width: 390px;
+}
+
+.footer .subtitle .explain {
+  color: #969696;
+  margin-top: -14px;
+}
+
+.footer .exhibition {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.footer .exhibition .exhibit_item {
+  margin: 0 24px 10px 0;
+}
+
+.footer .exhibition .exhibit_item p {
+  margin-top: 0;
+  text-align: center;
+}
+
+.bezier_item.plain + p {
+  color: #929292;
+}
+.bezier_item.plain:hover + p {
+  color: rgba(190, 46, 221, 0.5);
+}
+.bezier_item.plain.is-active + p {
+  color: rgb(190, 46, 221);
 }
 </style>

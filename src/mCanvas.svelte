@@ -87,18 +87,14 @@ const mouseMove = ({ layerX, layerY }) => {
 
 onMount(() => {
   ctx = canvas.getContext('2d')
-  if ($bezier) {
-    const [x1, y1, x2, y2] = $bezier
-    const w = 300
-    const h = 300
-    ctrlbottom.left = x1 * w
-    ctrlbottom.top = 450 - y1 * h
-    ctrltop.left = x2 * w
-    ctrltop.top = 450 - y2 * h
-    draw(ctx, canvasSize.w, canvasSize.h, 0, 450, 300, 150, ctrlbottom.left, ctrlbottom.top, ctrltop.left, ctrltop.top)
-  } else {
-    ctrlDraw()
-  }
+  const [x1, y1, x2, y2] = $bezier
+  const w = 300
+  const h = 300
+  ctrlbottom.left = x1 * w
+  ctrlbottom.top = 450 - y1 * h
+  ctrltop.left = x2 * w
+  ctrltop.top = 450 - y2 * h
+  draw(ctx, canvasSize.w, canvasSize.h, 0, 450, 300, 150, ctrlbottom.left, ctrlbottom.top, ctrltop.left, ctrltop.top)
 })
 </script>
 
