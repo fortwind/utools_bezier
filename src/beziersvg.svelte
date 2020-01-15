@@ -4,7 +4,6 @@ export let originalbezier = [0, 0.5, 1, 0.5]
 export let eclass = ''
 
 const correct = 0.25
-
 $: bezier = [originalbezier[0] * 1 + correct, 1 + correct - originalbezier[1] * 1, originalbezier[2] * 1 + correct, 1 + correct - originalbezier[3] * 1]
 </script>
 
