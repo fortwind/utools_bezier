@@ -29,7 +29,7 @@ let curves = [{ name: 'ease', val: [.25, .1, .25, 1], default: true, rev: null, 
 
 $: referone = curves[chosenone]
 
-initCurves().then(val => { curves = val; console.log(val) })
+initCurves().then(val => { curves = val })
 
 function initCurves () {
   return new Promise((resolve, reject) => {
@@ -71,8 +71,10 @@ function saveBezier (x) {
   curves.push({ name, val: bezier, default: false, rev: res.rev })
 }
 
-function editName (e) {
-  e.stopPropagation()
+function editName (e, flag) {
+  if (flag) {
+    const { value } = e.target
+  }
 }
 
 utools.onPluginOut(() => {
@@ -129,13 +131,14 @@ utools.onPluginOut(() => {
         </div>
         <div class="exhibition">
           {#each curves as key, i}
-            <div class="exhibit_item" on:click={() => chosenone = i}>
-              <BezierSvg eclass={i === chosenone ? 'plain is-active' : 'plain'} size={100} originalbezier={key.val}></BezierSvg>
+            <div class="exhibit_item">
+              <BezierSvg on:choose="{() => chosenone = i}" eclass={i === chosenone ? 'plain is-active' : 'plain'} size={100} originalbezier={key.val}></BezierSvg>
               {#if key.default}
                 <p>{key.name}</p>
               {:else}
-                <p on:click="{() => key.edit = true}" style="cursor:text;display:{ key.edit ? 'none' : '' }">{key.name}</p>
-                <input bind:value="{key.name}" on:blur="{() => key.edit = false}" style="display:{ key.edit ? '' : 'none' }" />
+                <!-- <p on:click="{() => key.edit = true}" style="cursor:text;display:{ key.edit ? 'none' : '' }">{key.name}</p>
+                <input class="edit-name" bind:value="{key.name}" on:blur="{(e) => {editName(e, key.edit);key.edit = false}}" on:keyup="{e => {editName(e, key.edit);key.edit = false}}" style="display:{key.edit ? '' : 'none'}"/> -->
+                <input class="edit-name" bind:value="{key.name}"/>
               {/if}
             </div>
           {/each}
@@ -305,13 +308,28 @@ utools.onPluginOut(() => {
   text-align: center;
 }
 
+.footer .exhibition .exhibit_item .edit-name {
+  color: #969696;
+  margin: 0;
+  padding: 0 12px;
+  font-size: 14px;
+  box-sizing: border-box;
+  width: 100px;
+  text-align: center;
+  border: 0px;
+}
+.footer .exhibition .exhibit_item .edit-name:focus {
+  outline: 0;
+  outline-offset: 0px;
+}
+
 .bezier_item.plain + p {
   color: #929292;
 }
-.bezier_item.plain:hover + p {
+.bezier_item.plain:hover + p, .bezier_item.plain:hover + .edit-name {
   color: rgba(190, 46, 221, 0.5);
 }
-.bezier_item.plain.is-active + p {
+.bezier_item.plain.is-active + p, .bezier_item.plain.is-active + .edit-name {
   color: rgb(190, 46, 221);
 }
 </style>

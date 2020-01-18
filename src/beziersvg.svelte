@@ -1,13 +1,17 @@
 <script>
+import { createEventDispatcher } from 'svelte'
 export let size = 1
 export let originalbezier = [0, 0.5, 1, 0.5]
 export let eclass = ''
 
+const dispatch = createEventDispatcher()
+
 const correct = 0.25
 $: bezier = [originalbezier[0] * 1 + correct, 1 + correct - originalbezier[1] * 1, originalbezier[2] * 1 + correct, 1 + correct - originalbezier[3] * 1]
+
 </script>
 
-<div class="bezier_item {eclass}" style="width:{size}px;height:{size}px;">
+<div class="bezier_item {eclass}" on:click="{() => dispatch('choose')}" style="width:{size}px;height:{size}px;">
   <svg xmlns="http://www.w3.org/2000/svg" width="{size}px" height="{size}px" viewBox="0 0 {1 + correct * 2} {1 + correct * 2}">
     <path class="path {eclass}" d="M {correct} {1 + correct} C {bezier[0]} {bezier[1]}, {bezier[2]} {bezier[3]}, {1 + correct} {correct}" stroke-width='0.03' fill="transparent"></path>
     <path class="path2dot {eclass}" d="M {correct} {1 + correct} L {bezier[0]} {bezier[1]}" stroke-width='0.02' fill="transparent"></path>
