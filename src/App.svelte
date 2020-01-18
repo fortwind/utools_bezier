@@ -139,6 +139,7 @@ utools.onPluginOut(() => {
                 <!-- <p on:click="{() => key.edit = true}" style="cursor:text;display:{ key.edit ? 'none' : '' }">{key.name}</p>
                 <input class="edit-name" bind:value="{key.name}" on:blur="{(e) => {editName(e, key.edit);key.edit = false}}" on:keyup="{e => {editName(e, key.edit);key.edit = false}}" style="display:{key.edit ? '' : 'none'}"/> -->
                 <input class="edit-name" bind:value="{key.name}"/>
+                <div class="edit-bottom"></div>
               {/if}
             </div>
           {/each}
@@ -300,6 +301,7 @@ utools.onPluginOut(() => {
 }
 
 .footer .exhibition .exhibit_item {
+  position: relative;
   margin: 0 24px 10px 0;
 }
 
@@ -321,6 +323,20 @@ utools.onPluginOut(() => {
 .footer .exhibition .exhibit_item .edit-name:focus {
   outline: 0;
   outline-offset: 0px;
+}
+.edit-name + .edit-bottom {
+  position: relative;
+  width: 0;
+  height: 2px;
+  margin-top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: transparent;
+  transition: width 0.3s, background-color 0.3s;
+}
+.edit-name:focus + .edit-bottom {
+  width: 100%;
+  background-color: rgb(190, 46, 221);
 }
 
 .bezier_item.plain + p {
