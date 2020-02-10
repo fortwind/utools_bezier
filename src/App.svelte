@@ -27,6 +27,7 @@ let active = false
 let chosenone = localStorage.getItem('chosenone') || 0
 let curves = [{ name: 'ease', val: [.25, .1, .25, 1], default: true, _rev: null }]
 let backupCurves
+let btnWork = false
 
 $: referone = curves[chosenone]
 
@@ -67,6 +68,8 @@ function initCurves () {
 }
 
 function copyBezier (value) {
+  if (btnWork) return false
+  btnWork = true
   const val = `cubic-bezier(${value.join(',')})`
   let clipbord = new ClipboardJS('.animate-plane', {
     text: () => val
@@ -74,14 +77,18 @@ function copyBezier (value) {
   clipbord.on('success', () => {
     clipbord.destroy()
     utools.showNotification('Copied', null, true)
+    btnWork = false
   })
   clipbord.on('error', () => {
     clipbord.destroy()
     utools.showNotification('Error', null, true)
+    btnWork = false
   })
 }
 
 function saveBezier (x) {
+  if (btnWork) return false
+  btnWork = true
   const bezier = x.map(v => v)
   const length = curves.length
   if (length > 99) {
@@ -93,6 +100,7 @@ function saveBezier (x) {
   const res = utools.db.put(theone)
   backupCurves.push(Object.assign({ _rev: res.rev }, theone))
   curves = backupCurves.map(v => Object.assign({}, v))
+  btnWork = false
 }
 
 function enterEvent (e) {
@@ -102,6 +110,8 @@ function enterEvent (e) {
 }
 
 function saveName (e, i) {
+  if (btnWork) return false
+  btnWork = true
   const newname = e.target.value
   const oldcurves = backupCurves[i]
   if (newname === oldcurves.name) return false
@@ -112,6 +122,8 @@ function saveName (e, i) {
     const r = utools.db.put({
       _id: oldcurves._id,
       name: newname,
+      val: oldcurves.val,
+      default: oldcurves.default,
       _rev: oldcurves._rev
     })
     if (r.error) {
@@ -123,11 +135,14 @@ function saveName (e, i) {
       curves[i]._rev = r.rev
     }
   }
+  btnWork = false
 }
 
 let removeone = -1
 
 function removeCurves (i) {
+  if (btnWork) return false
+  btnWork = true
   if (chosenone === i) {
     chosenone = 0
   }
@@ -136,15 +151,18 @@ function removeCurves (i) {
     utools.db.remove(backupCurves.splice(i, 1)[0]._id)
     curves = backupCurves.map(v => Object.assign({}, v))
   }
+  btnWork = false
 }
 
-// function filp (i, which) {
-//   const el = document.querySelector('.exhibit_item')[which]
-//   const first = el.getBoundingClientRect()
-//   removeone = i
-//   const last = el.getBoundingClientRect()
-//   console.log(first)
-// }
+let exhibitItems = []
+
+function filp (i, which) {
+  const el = exhibitItems[which]
+  const first = el.getBoundingClientRect()
+  removeone = i
+  const last = el.getBoundingClientRect()
+  console.log(first, last)
+}
 
 utools.onPluginOut(() => {
   localStorage.setItem('bezier', $bezier)
@@ -203,7 +221,7 @@ utools.onPluginOut(() => {
         </div>
         <div class="exhibition">
           {#each curves as key, i}
-            <div class="exhibit_item{removeone > i ? ' move-el' : removeone == i ? ' remove-el' : ''}">
+            <div bind:this={exhibitItems[i]} class="exhibit_item{removeone > i ? ' move-el' : removeone == i ? ' remove-el' : ''}">
               <button class="button removebtn" on:click="{() => removeCurves(i)}"></button>
               <BezierSvg on:choose="{() => chosenone = i}" eclass={i === chosenone ? 'plain is-active' : 'plain'} size={100} originalbezier={key.val}></BezierSvg>
               {#if key.default}
@@ -385,6 +403,10 @@ utools.onPluginOut(() => {
 .footer .exhibition .exhibit_item {
   position: relative;
   margin: 0 12px 10px;
+}
+
+.footer .exhibition .exhibit_item.remove-el {
+  position: absolute;
 }
 
 .footer .exhibition .exhibit_item p {
