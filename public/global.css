@@ -11,3 +11,33 @@ body {
 	box-sizing: border-box;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
+
+.exhibit_item .removebtn:hover + .bezier_item.plain {
+	background-color: rgb(190, 46, 221, 0.5);
+}
+
+.removebtn:hover + .bezier_item.plain .path.plain,
+.removebtn:hover + .bezier_item.plain .path2dot.plain {
+  stroke: #ffffff;
+}
+
+.removebtn:hover + .bezier_item.plain .dot.plain {
+  fill: #ffffff;
+}
+
+.bezier_item.plain:hover + p, .bezier_item.plain:hover + .edit-name {
+  color: rgba(190, 46, 221, 0.5);
+}
+.bezier_item.plain.is-active + p, .bezier_item.plain.is-active + .edit-name {
+  color: rgb(190, 46, 221);
+}
+
+.bezier_item.plain:hover ~ .forsee {
+  visibility: visible;
+}
+.bezier_item.plain:hover ~ .forsee > .rightl, .exhibit_item > .removebtn:hover ~ .forsee > .rightl {
+  transform: rotate(-135deg);
+}
+.bezier_item.plain:hover ~ .forsee > .leftl, .exhibit_item > .removebtn:hover ~ .forsee > .leftl {
+  transform: rotate(135deg);
+}

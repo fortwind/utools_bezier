@@ -25,11 +25,15 @@ const timeDot = {
 
 let active = false
 let chosenone = localStorage.getItem('chosenone') || 0
-let curves = [{ name: 'ease', val: [.25, .1, .25, 1], default: true, rev: null, edit: false }]
+let curves = [{ name: 'ease', val: [.25, .1, .25, 1], default: true, _rev: null }]
+let backupCurves
 
 $: referone = curves[chosenone]
 
-initCurves().then(val => { curves = val })
+initCurves().then(val => {
+  curves = val
+  backupCurves = curves.map(v => Object.assign({}, v))
+})
 
 function initCurves () {
   return new Promise((resolve, reject) => {
@@ -44,38 +48,103 @@ function initCurves () {
 
   function getCurves () {
     let curves_db = utools.db.allDocs('curves')
+    // curves_db.map(v => utools.db.remove(v))
     if (curves_db.length === 0) {
       curves_db = [
-        { _id: 'curves_ease', val: [.25, .1, .25, 1], default: true },
-        { _id: 'curves_linear', val: [0, 0, 1, 1], default: true },
-        { _id: 'curves_ease-in', val: [.42, 0, 1, 1], default: true },
-        { _id: 'curves_ease-out', val: [0, 0, .58, 1], default: true },
-        { _id: 'curves_ease-in-out', val: [.42, 0, .58, 1], default: true }
+        { _id: 'curves_0', name: 'ease', val: [.25, .1, .25, 1], default: true },
+        { _id: 'curves_1', name: 'linear', val: [0, 0, 1, 1], default: true },
+        { _id: 'curves_2', name: 'ease-in', val: [.42, 0, 1, 1], default: true },
+        { _id: 'curves_3', name: 'ease-out', val: [0, 0, .58, 1], default: true },
+        { _id: 'curves_4', name: 'ease-in-out', val: [.42, 0, .58, 1], default: true }
       ]
       curves_db.map(v => {
         const t = utools.db.put(v)
         v._rev = t.rev
       })
     }
-    // const curves2obj = []
-    return curves_db.map(v => ({ name: v._id.slice(7), val: v.val, default: v.default, rev: v._rev, edit: false }))
-    // })
-    // return curves2obj
+    return curves_db.sort((a, b) => a._id.slice(7) - b._id.slice(7)).map(v => ({ _id: v._id, name: v.name, val: v.val, default: v.default, _rev: v._rev }))
   }
+}
+
+function copyBezier (value) {
+  const val = `cubic-bezier(${value.join(',')})`
+  let clipbord = new ClipboardJS('.animate-plane', {
+    text: () => val
+  })
+  clipbord.on('success', () => {
+    clipbord.destroy()
+    utools.showNotification('Copied', null, true)
+  })
+  clipbord.on('error', () => {
+    clipbord.destroy()
+    utools.showNotification('Error', null, true)
+  })
 }
 
 function saveBezier (x) {
   const bezier = x.map(v => v)
-  const name = 'new' + curves.length
-  const res = utools.db.put({ _id: 'curves_' + name, val: bezier, default: false })
-  curves.push({ name, val: bezier, default: false, rev: res.rev })
+  const length = curves.length
+  if (length > 99) {
+    utools.showNotification('添加太多了啦！', null, true)
+    return false
+  }
+  const id = curves[length - 1]._id.slice(7) * 1 + 1
+  const theone = { _id: 'curves_' + id, name: `new${length}`, val: bezier, default: false }
+  const res = utools.db.put(theone)
+  backupCurves.push(Object.assign({ _rev: res.rev }, theone))
+  curves = backupCurves.map(v => Object.assign({}, v))
 }
 
-function editName (e, flag) {
-  if (flag) {
-    const { value } = e.target
+function enterEvent (e) {
+  if (e.keyCode === 13) {
+    e.target.blur()
   }
 }
+
+function saveName (e, i) {
+  const newname = e.target.value
+  const oldcurves = backupCurves[i]
+  if (newname === oldcurves.name) return false
+  if (backupCurves.map(v => v.name).includes(newname)) {
+    curves[i].name = oldcurves.name
+    utools.showNotification('名称不要重复哟', null, true)
+  } else {
+    const r = utools.db.put({
+      _id: oldcurves._id,
+      name: newname,
+      _rev: oldcurves._rev
+    })
+    if (r.error) {
+      utools.showNotification(r.message, null, true)
+      curves[i].name = oldcurves.name
+    } else {
+      oldcurves.name = newname
+      oldcurves._rev = r.rev
+      curves[i]._rev = r.rev
+    }
+  }
+}
+
+let removeone = -1
+
+function removeCurves (i) {
+  if (chosenone === i) {
+    chosenone = 0
+  }
+  // filp(i, 8)
+  if (backupCurves[i]) {
+    utools.db.remove(backupCurves.splice(i, 1)[0]._id)
+    curves = backupCurves.map(v => Object.assign({}, v))
+  }
+}
+
+// function filp (i, which) {
+//   const el = document.querySelector('.exhibit_item')[which]
+//   const first = el.getBoundingClientRect()
+//   removeone = i
+//   const last = el.getBoundingClientRect()
+//   console.log(first)
+// }
 
 utools.onPluginOut(() => {
   localStorage.setItem('bezier', $bezier)
@@ -115,12 +184,13 @@ utools.onPluginOut(() => {
           </div>
           <div class="time">{timeDot.time} s</div>
         </div>
+        <p class="explain">👇点击下方两个方块可拷贝对应bezier值到剪切板。</p>
         <div class="animate-plane">
           <div class="plane-item{active ? ' transform' : ''}" style="transition-duration: {timeDot.time}s;transition-timing-function:cubic-bezier({$bezier[0]}, {$bezier[1]}, {$bezier[2]}, {$bezier[3]})">
-            <BezierSvg eclass={'target'} size={64} originalbezier={$bezier} />
+            <BezierSvg on:choose="{() => copyBezier($bezier)}" eclass={'target'} size={64} originalbezier={$bezier} />
           </div>
           <div class="plane-item{active ? ' transform' : ''}" style="transition-duration: {timeDot.time}s;transition-timing-function:cubic-bezier({referone.val[0]}, {referone.val[1]}, {referone.val[2]}, {referone.val[3]})">
-            <BezierSvg eclass={'refer'} size={64} originalbezier={referone.val} />
+            <BezierSvg on:choose="{() => copyBezier(referone.val)}" eclass={'refer'} size={64} originalbezier={referone.val} />
           </div>
         </div>
       </div>
@@ -128,18 +198,23 @@ utools.onPluginOut(() => {
         <div class="subtitle">
           <h2>Library</h2>
           <p class="explain">Click on a curve to compare it with the current one.</p>
+          <p class="explain">For new one, it`s name can be changed by click it`s name.</p>
+          <p class="explain">Attention!! The name cannot be repeated!</p>
         </div>
         <div class="exhibition">
           {#each curves as key, i}
-            <div class="exhibit_item">
+            <div class="exhibit_item{removeone > i ? ' move-el' : removeone == i ? ' remove-el' : ''}">
+              <button class="button removebtn" on:click="{() => removeCurves(i)}"></button>
               <BezierSvg on:choose="{() => chosenone = i}" eclass={i === chosenone ? 'plain is-active' : 'plain'} size={100} originalbezier={key.val}></BezierSvg>
               {#if key.default}
                 <p>{key.name}</p>
               {:else}
-                <!-- <p on:click="{() => key.edit = true}" style="cursor:text;display:{ key.edit ? 'none' : '' }">{key.name}</p>
-                <input class="edit-name" bind:value="{key.name}" on:blur="{(e) => {editName(e, key.edit);key.edit = false}}" on:keyup="{e => {editName(e, key.edit);key.edit = false}}" style="display:{key.edit ? '' : 'none'}"/> -->
-                <input class="edit-name" bind:value="{key.name}"/>
+                <input class="edit-name" bind:value="{key.name}" on:blur="{(e) => saveName(e, i)}" on:keypress="{enterEvent}"/>
                 <div class="edit-bottom"></div>
+                <div class="forsee">
+                  <span class="cline leftl"></span>
+                  <span class="cline rightl"></span>
+                </div>
               {/if}
             </div>
           {/each}
@@ -158,6 +233,10 @@ utools.onPluginOut(() => {
   user-select: none;
 }
 
+.container {
+  padding: 0 10px;
+}
+
 .button {
   display: inline-block;
   line-height: 1;
@@ -168,6 +247,7 @@ utools.onPluginOut(() => {
   box-sizing: border-box;
   outline: none;
   margin: 0;
+  border: 0;
   transition: .1s;
   font-weight: 500;
   font-size: 14px;
@@ -178,8 +258,9 @@ utools.onPluginOut(() => {
   font-size: 2.6vw;
   text-align: center;
   letter-spacing: 1px;
-  cursor: pointer;
-  transition: text-shadow 0.3s;
+  user-select: text;
+  /* cursor: pointer; */
+  /* transition: text-shadow 0.3s; */
 }
 .title .bottompos {
   color: #ff0088;
@@ -187,9 +268,9 @@ utools.onPluginOut(() => {
 .title .toppos {
   color: #00aabb;
 }
-.title:hover {
+/* .title:hover {
   text-shadow: 0 0 5px rgb(190, 46, 221);
-}
+} */
 
 .content {
   display: flex;
@@ -289,20 +370,21 @@ utools.onPluginOut(() => {
   min-width: 390px;
 }
 
-.footer .subtitle .explain {
+.explain {
   color: #969696;
-  margin-top: -14px;
+  line-height: 0.5;
 }
 
 .footer .exhibition {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  margin: 0 -11px;
 }
 
 .footer .exhibition .exhibit_item {
   position: relative;
-  margin: 0 24px 10px 0;
+  margin: 0 12px 10px;
 }
 
 .footer .exhibition .exhibit_item p {
@@ -339,13 +421,52 @@ utools.onPluginOut(() => {
   background-color: rgb(190, 46, 221);
 }
 
-.bezier_item.plain + p {
-  color: #929292;
-}
-.bezier_item.plain:hover + p, .bezier_item.plain:hover + .edit-name {
+/* .bezier_item.plain:hover + p, .bezier_item.plain:hover + .edit-name {
   color: rgba(190, 46, 221, 0.5);
 }
 .bezier_item.plain.is-active + p, .bezier_item.plain.is-active + .edit-name {
   color: rgb(190, 46, 221);
+} */
+
+.exhibit_item > .removebtn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  transform: translate(50%, -50%);
+  opacity: 0;
+  z-index: 2;
 }
+
+.forsee {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  right: 0;
+  height: 20px;
+  width: 20px;
+  background-color: #969696;
+  border-radius: 50%;
+  transform: translate(50%, -50%);
+  transition: background-color 0.3s;
+  visibility: hidden;
+}
+
+.forsee .cline {
+  position: absolute;
+  height: 10px;
+  width: 2px;
+  background-color: #ffffff;
+  transform: rotate(0);
+  transition: transform 0.3s;
+}
+
+.exhibit_item > .removebtn:hover ~ .forsee {
+  visibility: visible;
+  background-color: #000000;
+}
+
 </style>

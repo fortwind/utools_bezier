@@ -27,6 +27,7 @@ $: bezier = [originalbezier[0] * 1 + correct, 1 + correct - originalbezier[1] * 
   justify-content: center;
   align-items: center;
   border-radius: 5px;
+  cursor: pointer;
 }
 .bezier_item.target {
   background-color: #f08;
@@ -50,7 +51,6 @@ $: bezier = [originalbezier[0] * 1 + correct, 1 + correct - originalbezier[1] * 
 
 .bezier_item.plain {
   background-color: #e5e5e5;
-  cursor: pointer;
   transition: background-color 0.3s;
 }
 
@@ -66,7 +66,8 @@ $: bezier = [originalbezier[0] * 1 + correct, 1 + correct - originalbezier[1] * 
 .bezier_item.plain:hover {
   background-color: rgb(190, 46, 221, 0.5);
 }
-.bezier_item.plain:hover .path.plain, .bezier_item.plain:hover .path2dot.plain {
+.bezier_item.plain:hover .path.plain,
+.bezier_item.plain:hover .path2dot.plain {
   stroke: #ffffff;
 }
 .bezier_item.plain:hover .dot.plain {
