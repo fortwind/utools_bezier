@@ -25,9 +25,8 @@ const timeDot = {
 
 let active = false
 let chosenone = localStorage.getItem('chosenone') || 0
-let curves = [{ name: 'ease', val: [.25, .1, .25, 1], default: true, _rev: null }]
+let curves = [{ _id: 0, name: 'ease', val: [.25, .1, .25, 1], default: true, _rev: null }]
 let backupCurves
-let btnWork = false
 
 $: referone = curves[chosenone]
 
@@ -68,8 +67,6 @@ function initCurves () {
 }
 
 function copyBezier (value) {
-  if (btnWork) return false
-  btnWork = true
   const val = `cubic-bezier(${value.join(',')})`
   let clipbord = new ClipboardJS('.animate-plane', {
     text: () => val
@@ -77,18 +74,14 @@ function copyBezier (value) {
   clipbord.on('success', () => {
     clipbord.destroy()
     utools.showNotification('Copied', null, true)
-    btnWork = false
   })
   clipbord.on('error', () => {
     clipbord.destroy()
     utools.showNotification('Error', null, true)
-    btnWork = false
   })
 }
 
 function saveBezier (x) {
-  if (btnWork) return false
-  btnWork = true
   const bezier = x.map(v => v)
   const length = curves.length
   if (length > 99) {
@@ -96,11 +89,10 @@ function saveBezier (x) {
     return false
   }
   const id = curves[length - 1]._id.slice(7) * 1 + 1
-  const theone = { _id: 'curves_' + id, name: `new${length}`, val: bezier, default: false }
+  const theone = { _id: 'curves_' + id, name: `new${id}`, val: bezier, default: false }
   const res = utools.db.put(theone)
   backupCurves.push(Object.assign({ _rev: res.rev }, theone))
   curves = backupCurves.map(v => Object.assign({}, v))
-  btnWork = false
 }
 
 function enterEvent (e) {
@@ -110,8 +102,6 @@ function enterEvent (e) {
 }
 
 function saveName (e, i) {
-  if (btnWork) return false
-  btnWork = true
   const newname = e.target.value
   const oldcurves = backupCurves[i]
   if (newname === oldcurves.name) return false
@@ -135,33 +125,51 @@ function saveName (e, i) {
       curves[i]._rev = r.rev
     }
   }
-  btnWork = false
 }
 
-let removeone = -1
-
 function removeCurves (i) {
-  if (btnWork) return false
-  btnWork = true
   if (chosenone === i) {
     chosenone = 0
   }
-  // filp(i, 8)
+  // console.log(exhibitItems.slice(3)) // 这个可，，queryselectorAll不可类似数组slice
+  
   if (backupCurves[i]) {
-    utools.db.remove(backupCurves.splice(i, 1)[0]._id)
-    curves = backupCurves.map(v => Object.assign({}, v))
+    filp(i, curves.length).then(val => {
+      utools.db.remove(backupCurves.splice(i, 1)[0]._id)
+      curves = backupCurves.map(v => Object.assign({}, v))
+    })
   }
-  btnWork = false
 }
 
 let exhibitItems = []
+let exhibition
 
-function filp (i, which) {
-  const el = exhibitItems[which]
-  const first = el.getBoundingClientRect()
-  removeone = i
-  const last = el.getBoundingClientRect()
-  console.log(first, last)
+function filp (i, length) {
+  if (exhibitItems.slice(-1)[0] === null) exhibitItems.length--
+  const el = exhibitItems.slice(i+1)
+  const first = el.map(v => v.getBoundingClientRect())
+  exhibitItems[i].classList.add('remove-el')
+  const last = el.map(v => v.getBoundingClientRect())
+  const top = el.map((v, i) => first[i].top - last[i].top)
+  const left = el.map((v, i) => first[i].left - last[i].left)
+  const player = el.map((v, i) => v.animate([
+    { transform: `translate(${left[i]}px, ${top[i]}px)` },
+    { transform: 'translate(0, 0)' }
+  ], {
+    duration: 500,
+    easing: 'ease'
+  }))
+  return new Promise(resolve => {
+    setTimeout(() => {
+      exhibitItems[i].classList.remove('remove-el')
+      resolve('finish')
+    }, 600)
+  })
+  // return new Promise.all(player.map(v => new Promise(resolve => {
+  //   v.addEventListener('finish'), () => {
+  //     resolve('finish')
+  //   }
+  // })))
 }
 
 utools.onPluginOut(() => {
@@ -219,9 +227,10 @@ utools.onPluginOut(() => {
           <p class="explain">For new one, it`s name can be changed by click it`s name.</p>
           <p class="explain">Attention!! The name cannot be repeated!</p>
         </div>
-        <div class="exhibition">
-          {#each curves as key, i}
-            <div bind:this={exhibitItems[i]} class="exhibit_item{removeone > i ? ' move-el' : removeone == i ? ' remove-el' : ''}">
+        <div bind:this={exhibition} class="exhibition">
+          <div class="exhibits remove-el" style="display:none"></div> <!-- svelte如果检测html中（js中没用）css unused，就不会打包，，所以虚晃一下 -->
+          {#each curves as key, i (key._id)}
+            <div bind:this={exhibitItems[i]} class="exhibit_item exhibits">
               <button class="button removebtn" on:click="{() => removeCurves(i)}"></button>
               <BezierSvg on:choose="{() => chosenone = i}" eclass={i === chosenone ? 'plain is-active' : 'plain'} size={100} originalbezier={key.val}></BezierSvg>
               {#if key.default}
@@ -394,19 +403,23 @@ utools.onPluginOut(() => {
 }
 
 .footer .exhibition {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  position: relative;
   margin: 0 -11px;
 }
 
 .footer .exhibition .exhibit_item {
   position: relative;
+  display: inline-block;
   margin: 0 12px 10px;
+  opacity: 1;
+  transform: scale(1);
+  transition: transform 0.5s, opacity 0.5s;
 }
 
-.footer .exhibition .exhibit_item.remove-el {
+.footer .exhibition .exhibits.remove-el {
   position: absolute;
+  opacity: 0;
+  transform: scale(0);
 }
 
 .footer .exhibition .exhibit_item p {
