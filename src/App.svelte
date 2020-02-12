@@ -3,6 +3,7 @@ import { onMount, onDestroy } from 'svelte'
 import MCanvas from './mCanvas.svelte'
 import BezierSvg from './beziersvg.svelte'
 import { bezier } from './store.js'
+import Notification, { showNotify } from './notification.svelte'
 
 const timeDot = {
   fatherDom: '',
@@ -73,11 +74,17 @@ function copyBezier (value) {
   })
   clipbord.on('success', () => {
     clipbord.destroy()
-    utools.showNotification('Copied', null, true)
+    showNotify({
+      message: 'Copied',
+      type: 'success'
+    })
   })
   clipbord.on('error', () => {
     clipbord.destroy()
-    utools.showNotification('Error', null, true)
+    showNotify({
+      message: 'Error',
+      type: 'error'
+    })
   })
 }
 
@@ -85,7 +92,10 @@ function saveBezier (x) {
   const bezier = x.map(v => v)
   const length = curves.length
   if (length > 99) {
-    utools.showNotification('添加太多了啦！', null, true)
+    showNotify({
+      message: '添加太多了啦！',
+      type: 'warning'
+    })
     return false
   }
   const id = curves[length - 1]._id.slice(7) * 1 + 1
@@ -104,10 +114,20 @@ function enterEvent (e) {
 function saveName (e, i) {
   const newname = e.target.value
   const oldcurves = backupCurves[i]
-  if (newname === oldcurves.name) return false
-  if (backupCurves.map(v => v.name).includes(newname)) {
+  if (newname === oldcurves.name) {
+    return false
+  } else if (!newname) {
     curves[i].name = oldcurves.name
-    utools.showNotification('名称不要重复哟', null, true)
+    showNotify({
+      message: '名称不为空哟',
+      type: 'warning'
+    })
+  } else if (backupCurves.map(v => v.name).includes(newname)) {
+    curves[i].name = oldcurves.name
+    showNotify({
+      message: '名称不要重复哟',
+      type: 'warning'
+    })
   } else {
     const r = utools.db.put({
       _id: oldcurves._id,
@@ -117,7 +137,10 @@ function saveName (e, i) {
       _rev: oldcurves._rev
     })
     if (r.error) {
-      utools.showNotification(r.message, null, true)
+      showNotify({
+        message: r.message,
+        type: 'error'
+      })
       curves[i].name = oldcurves.name
     } else {
       oldcurves.name = newname
@@ -250,6 +273,7 @@ utools.onPluginOut(() => {
     </div>
   </div>
 </div>
+<Notification></Notification>
 
 <style scoped>
 #app {
@@ -262,23 +286,6 @@ utools.onPluginOut(() => {
 
 .container {
   padding: 0 10px;
-}
-
-.button {
-  display: inline-block;
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-  -webkit-appearance: none;
-  text-align: center;
-  box-sizing: border-box;
-  outline: none;
-  margin: 0;
-  border: 0;
-  transition: .1s;
-  font-weight: 500;
-  font-size: 14px;
-  border-radius: 4px;
 }
 
 .title {

@@ -8,8 +8,26 @@ body {
 	position: relative;
 	color: #333;
 	margin: 0;
+	/* border: 0.5px solid transparent; 解决边框塌陷 */
 	box-sizing: border-box;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.button {
+  display: inline-block;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-appearance: none;
+  text-align: center;
+  box-sizing: border-box;
+  outline: none;
+  margin: 0;
+  border: 0;
+  transition: .1s;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: 4px;
 }
 
 .exhibit_item .removebtn:hover + .bezier_item.plain {
@@ -25,10 +43,10 @@ body {
   fill: #ffffff;
 }
 
-.bezier_item.plain:hover + p, .bezier_item.plain:hover + .edit-name {
+.bezier_item.plain:hover + p, .footer .exhibition .exhibit_item .bezier_item.plain:hover + .edit-name {
   color: rgba(190, 46, 221, 0.5);
 }
-.bezier_item.plain.is-active + p, .bezier_item.plain.is-active + .edit-name {
+.bezier_item.plain.is-active + p, .footer .exhibition .exhibit_item .bezier_item.plain.is-active + .edit-name {
   color: rgb(190, 46, 221);
 }
 
